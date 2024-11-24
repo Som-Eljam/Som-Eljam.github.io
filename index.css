@@ -1,0 +1,95 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 20px;
+}
+
+/* Heading Styles */
+h2 {
+    color: #444;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+}
+
+/* Form Labels */
+label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+}
+
+/* Input Styles */
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Button Styles */
+button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Output Styles */
+p {
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+    margin: 10px 0;
+}
+
+span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-top: 10px;
+}
+
+/* Specific Section Styles */
+#calculatorResult,
+#convertedWord,
+#hcfresult,
+#greetMessage {
+    color: #007bff;
+}
+
+/* Error/Alert Messages */
+.alert {
+    color: red;
+    font-weight: bold;
+}
+
+/* Layout Adjustments for Small Screens */
+@media (max-width: 768px) {
+    button {
+        width: 100%;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+    }
+}
