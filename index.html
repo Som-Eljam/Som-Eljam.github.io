@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web apps prac</title>
+</head>
+<body>
+    <h2>Greeting</h2>
+    <br>
+    <label for="nameInput">Enter Your Name</label>
+    <input type="text" id="nameInput">
+    <br>
+    <button onclick="greetUser()">Welcome</button>
+    <br>
+    <p id="greetMessage"></p>
+
+    <script>
+        function greetUser() {
+            const name = document.getElementById("nameInput").value;
+
+            const currentHour = new Date().getHours()
+
+            let greetingMessage = document.getElementById("greetMessage")
+
+            let greeting;
+            if (currentHour < 12) {
+                greeting = "Good Morning"
+            }else if (currentHour < 17) {
+                greeting = "Good Afternon"
+            } else {
+                greeting = "Good Evening"
+            }
+            if (name.trim() !== "") {
+                greetingMessage.textContent = `${greeting}, ${name}!`
+            } else {
+                alert("Please enter your name")
+            }
+        }
+    </script>
+    <h2>Highst Common Factor</h2>
+    <br>
+    <label for="number1">Enter the first number</label>
+    <input type="number" id="number1" placeholder="Enter the first number">
+    <br>
+    <label for="number2">Enter the second number</label>
+    <input type="number" id="number2" placeholder="Enter the second number">
+    <br>
+    <button onclick="hcf()">Calculate the HCF</button>
+    <br>
+    <p id="hcfresult"></p>
+    <br>
+
+    <script>
+        function hcf() {
+            let num1 = document.getElementById("number1").value;
+            let num2 = document.getElementById("number2").value;
+
+            if (isNaN(num1) || isNaN(num2) || num1 <= 0 || num2 <= 0) {
+                document.getElementById("HcfResult").textContent = "Enter After Positive numbers or I will steal you familly and will leak your browsing history"
+            } else {
+                while (num2 !== 0) {
+                let remainder = num1 % num2
+                num1 = num2
+                num2 = remainder
+            }
+            document.getElementById("hcfresult").textContent = `The HCF is ${num1}`
+            }
+
+            
+        }
+    </script>
+<br>
+
+<h2>Convert numbers to words</h2>
+
+<br>
+<label for="numToWord">Enter a number (0-10000) to convert</label>
+<input type="number" id="numToWord" min="0" max="10000" placeholder="only use POSITIVE while numbers" step="1">
+<br>
+<button onclick="numToWord()">Press Button</button>
+<br>
+<p id="convertedWord"></p>
+<script>
+    const ones = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+    const teens = ["Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "sixteen", "Seventeen", "Eighteen", "Nineteen"]
+    const tens = ["ten", "Twenty", "Thirty", "Fourty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+    //const thousands = ["Thousands"] - not needed
+
+    function numToWord() {
+        let num = parseInt(document.getElementById("numToWord").value)
+
+        if (isNaN(num) || num < 0 || num > 1000) {
+            alert("Please enter a whole number between 0 and 9999")
+        }
+        const words = convertToWord(num)
+
+        document.getElementById("convertedWord").textContent = `Number in word is ${words}`
+    }
+
+    
+
+    function convertToWord(num) {
+        if (num === 0) return "Zero";
+        if (num < 10) return ones[num]; // 0-9
+        if (num >= 11 && num <= 19) return teens[num - 11]; // 11-19
+        if (num >= 10 && num < 100) return tens[Math.floor(num / 10) - 1] + (num % 10 !== 0 ? " " + convertToWord(num % 10) : " "); //10-99
+        if (num >= 100 && num < 1000) return ones[Math.floor(num / 100)] + " Hundred" + (num % 100 !== 0 ? " and " + convertToWord(num % 100) : " "); //1000 - 999
+        if (num >= 1000) return ones[Math.floor(num/1000)] + " Thousand" + (num % 1000 !== 0 ? " " + convertToWord(num % 1000) : " ")// 1000-9999
+    }
+</script>
+
+<h2>Calculator</h2>
+<br>
+<input type="number" id="value1">
+<select id="operation">
+    <option value="add">+</option>
+    <option value="subtract">-</option>
+    <option value="multiply">x</option>
+    <option value="divide">÷</option>
+</select>
+<input type="number" id="value2">
+<button onclick="calculator()">Calculate</button>
+<span id="calculatorResult"></span>
+
+<script>
+    function calculator() {
+        const value1 = parseFloat(document.getElementById("value1").value)
+        const value2 = parseFloat(document.getElementById("value2").value)
+        const operation = document.getElementById("operation").value
+        let result
+
+        if (isNaN(value1) || isNaN(value2)) {
+            alert("Please enter valid numbers")
+        } else {
+            switch(operation) {
+                case "add":
+                    result = value1 + value2
+                    break
+                case "subtract":
+                    result = value1 - value2
+                    break
+                case "multiply":
+                    result = value1  * value2
+                    break
+                case "divide":
+                    result = value2 !== 0? value1/value2 : "Cannot Divide By 0"
+                    break
+                default:
+                    result = "Invalid operation"
+            }
+            document.getElementById("calculatorResult").textContent = result
+        }
+    }
+</script>
+
+<h2>Currency Converter</h2>
+<br>
+<label for="amount">Enter amount</label>
+<input type="number" id="amount" min="0" placeholder="Enter Amount">
+<br>
+<label for="fromCur">From:</label>
+<select id="fromCur">
+    <option value="AFN">AFN</option>
+    <option value="ALL">ALL</option>
+    <option value="DZD">DZD</option>
+    <option value="ADP">ADP</option>
+    <option value="AOA">AOA</option>
+    <option value="XCD">XCD</option>
+    <option value="ARS">ARS</option>
+    <option value="AMD">AMD</option>
+    <option value="AWG">AWG</option>
+    <option value="AUD">AUD</option>
+    <option value="AZN">AZN</option>
+    <option value="BAM">BAM</option>
+    <option value="BBD">BBD</option>
+    <option value="BDT">BDT</option>
+    <option value="BMD">BMD</option>
+    <option value="BND">BND</option>
+    <option value="BOB">BOB</option>
+    <option value="BRL">BRL</option>
+    <option value="BSD">BSD</option>
+    <option value="BTN">BTN</option>
+    <option value="BWP">BWP</option>
+    <option value="BYN">BYN</option>
+    <option value="BZD">BZD</option>
+    <option value="CAD">CAD</option>
+    <option value="CDF">CDF</option>
+    <option value="CHF">CHF</option>
+    <option value="CLP">CLP</option>
+    <option value="CNY">CNY</option>
+    <option value="COP">COP</option>
+    <option value="CRC">CRC</option>
+    <option value="CUP">CUP</option>
+    <option value="CVE">CVE</option>
+    <option value="CZK">CZK</option>
+    <option value="DJF">DJF</option>
+    <option value="DKK">DKK</option>
+    <option value="DOP">DOP</option>
+    <option value="DZD">DZD</option>
+    <option value="EGP">EGP</option>
+    <option value="ERN">ERN</option>
+    <option value="ESA">ESA</option>
+    <option value="ETB">ETB</option>
+    <option value="EUR">EUR</option>
+    <option value="FJD">FJD</option>
+    <option value="FKP">FKP</option>
+    <option value="FOK">FOK</option>
+    <option value="GBP">GBP</option>
+    <option value="GEL">GEL</option>
+    <option value="GHS">GHS</option>
+    <option value="GIP">GIP</option>
+    <option value="GMD">GMD</option>
+    <option value="GNF">GNF</option>
+    <option value="GTQ">GTQ</option>
+    <option value="GYD">GYD</option>
+    <option value="HKD">HKD</option>
+    <option value="HNL">HNL</option>
+    <option value="HRK">HRK</option>
+    <option value="HTG">HTG</option>
+    <option value="HUF">HUF</option>
+    <option value="IDR">IDR</option>
+    <option value="ILS">ILS</option>
+    <option value="INR">INR</option>
+    <option value="IQD">IQD</option>
+    <option value="IRR">IRR</option>
+    <option value="ISK">ISK</option>
+    <option value="JMD">JMD</option>
+    <option value="JOD">JOD</option>
+    <option value="JPY">JPY</option>
+    <option value="KES">KES</option>
+    <option value="KGS">KGS</option>
+    <option value="KHR">KHR</option>
+    <option value="KMF">KMF</option>
+    <option value="KRW">KRW</option>
+    <option value="KWD">KWD</option>
+    <option value="KYD">KYD</option>
+    <option value="KZT">KZT</option>
+    <option value="LAK">LAK</option>
+    <option value="LBP">LBP</option>
+    <option value="LKR">LKR</option>
+    <option value="LRD">LRD</option>
+    <option value="LSL">LSL</option>
+    <option value="LTL">LTL</option>
+    <option value="LVL">LVL</option>
+    <option value="LYD">LYD</option>
+    <option value="MAD">MAD</option>
+    <option value="MDL">MDL</option>
+    <option value="MGA">MGA</option>
+    <option value="MKD">MKD</option>
+    <option value="MMK">MMK</option>
+    <option value="MNT">MNT</option>
+    <option value="MOP">MOP</option>
+    <option value="MRO">MRO</option>
+    <option value="MTL">MTL</option>
+    <option value="MUR">MUR</option>
+    <option value="MWK">MWK</option>
+    <option value="MXN">MXN</option>
+    <option value="MYR">MYR</option>
+    <option value="MZN">MZN</option>
+    <option value="NAD">NAD</option>
+    <option value="NGN">NGN</option>
+    <option value="NIO">NIO</option>
+    <option value="NOK">NOK</option>
+    <option value="NPR">NPR</option>
+    <option value="NZD">NZD</option>
+    <option value="OMR">OMR</option>
+    <option value="PAB">PAB</option>
+    <option value="PEN">PEN</option>
+    <option value="PGK">PGK</option>
+    <option value="PHP">PHP</option>
+    <option value="PKR">PKR</option>
+    <option value="PLN">PLN</option>
+    <option value="PRB">PRB</option>
+    <option value="PYG">PYG</option>
+    <option value="QAR">QAR</option>
+    <option value="RON">RON</option>
+    <option value="RSD">RSD</option>
+    <option value="RUB">RUB</option>
+    <option value="RWF">RWF</option>
+    <option value="SAR">SAR</option>
+    <option value="SBD">SBD</option>
+    <option value="SCR">SCR</option>
+    <option value="SEK">SEK</option>
+    <option value="SGD">SGD</option>
+    <option value="SHP">SHP</option>
+    <option value="SLL">SLL</option>
+    <option value="SOS">SOS</option>
+    <option value="SRD">SRD</option>
+    <option value="SSP">SSP</option>
+    <option value="STN">STN</option>
+    <option value="SYP">SYP</option>
+    <option value="SZL">SZL</option>
+    <option value="THB">THB</option>
+    <option value="TJS">TJS</option>
+    <option value="TMT">TMT</option>
+    <option value="TND">TND</option>
+    <option value="TOP">TOP</option>
+    <option value="TRY">TRY</option>
+    <option value="TTD">TTD</option>
+    <option value="TWD">TWD</option>
+    <option value="TZS">TZS</option>
+    <option value="UAH">UAH</option>
+    <option value="UGX">UGX</option>
+    <option value="USD">USD</option>
+    <option value="UYU">UYU</option>
+    <option value="UZS">UZS</option>
+    <option value="VND">VND</option>
+    <option value="VUV">VUV</option>
+    <option value="WST">WST</option>
+    <option value="XAF">XAF</option>
+    <option value="XCD">XCD</option>
+    <option value="XOF">XOF</option>
+    <option value="XPF">XPF</option>
+    <option value="YER">YER</option>
+    <option value="ZAR">ZAR</option>
+    <option value="ZMK">ZMK</option>
+    <option value="ZWL">ZWL</option>    
+</select>
+<br>
+<label for="toCur">To:</label>
+<select id="toCur">
+    <option value="AFN">AFN</option>
+    <option value="ALL">ALL</option>
+    <option value="DZD">DZD</option>
+    <option value="ADP">ADP</option>
+    <option value="AOA">AOA</option>
+    <option value="XCD">XCD</option>
+    <option value="ARS">ARS</option>
+    <option value="AMD">AMD</option>
+    <option value="AWG">AWG</option>
+    <option value="AUD">AUD</option>
+    <option value="AZN">AZN</option>
+    <option value="BAM">BAM</option>
+    <option value="BBD">BBD</option>
+    <option value="BDT">BDT</option>
+    <option value="BMD">BMD</option>
+    <option value="BND">BND</option>
+    <option value="BOB">BOB</option>
+    <option value="BRL">BRL</option>
+    <option value="BSD">BSD</option>
+    <option value="BTN">BTN</option>
+    <option value="BWP">BWP</option>
+    <option value="BYN">BYN</option>
+    <option value="BZD">BZD</option>
+    <option value="CAD">CAD</option>
+    <option value="CDF">CDF</option>
+    <option value="CHF">CHF</option>
+    <option value="CLP">CLP</option>
+    <option value="CNY">CNY</option>
+    <option value="COP">COP</option>
+    <option value="CRC">CRC</option>
+    <option value="CUP">CUP</option>
+    <option value="CVE">CVE</option>
+    <option value="CZK">CZK</option>
+    <option value="DJF">DJF</option>
+    <option value="DKK">DKK</option>
+    <option value="DOP">DOP</option>
+    <option value="DZD">DZD</option>
+    <option value="EGP">EGP</option>
+    <option value="ERN">ERN</option>
+    <option value="ESA">ESA</option>
+    <option value="ETB">ETB</option>
+    <option value="EUR">EUR</option>
+    <option value="FJD">FJD</option>
+    <option value="FKP">FKP</option>
+    <option value="FOK">FOK</option>
+    <option value="GBP">GBP</option>
+    <option value="GEL">GEL</option>
+    <option value="GHS">GHS</option>
+    <option value="GIP">GIP</option>
+    <option value="GMD">GMD</option>
+    <option value="GNF">GNF</option>
+    <option value="GTQ">GTQ</option>
+    <option value="GYD">GYD</option>
+    <option value="HKD">HKD</option>
+    <option value="HNL">HNL</option>
+    <option value="HRK">HRK</option>
+    <option value="HTG">HTG</option>
+    <option value="HUF">HUF</option>
+    <option value="IDR">IDR</option>
+    <option value="ILS">ILS</option>
+    <option value="INR">INR</option>
+    <option value="IQD">IQD</option>
+    <option value="IRR">IRR</option>
+    <option value="ISK">ISK</option>
+    <option value="JMD">JMD</option>
+    <option value="JOD">JOD</option>
+    <option value="JPY">JPY</option>
+    <option value="KES">KES</option>
+    <option value="KGS">KGS</option>
+    <option value="KHR">KHR</option>
+    <option value="KMF">KMF</option>
+    <option value="KRW">KRW</option>
+    <option value="KWD">KWD</option>
+    <option value="KYD">KYD</option>
+    <option value="KZT">KZT</option>
+    <option value="LAK">LAK</option>
+    <option value="LBP">LBP</option>
+    <option value="LKR">LKR</option>
+    <option value="LRD">LRD</option>
+    <option value="LSL">LSL</option>
+    <option value="LTL">LTL</option>
+    <option value="LVL">LVL</option>
+    <option value="LYD">LYD</option>
+    <option value="MAD">MAD</option>
+    <option value="MDL">MDL</option>
+    <option value="MGA">MGA</option>
+    <option value="MKD">MKD</option>
+    <option value="MMK">MMK</option>
+    <option value="MNT">MNT</option>
+    <option value="MOP">MOP</option>
+    <option value="MRO">MRO</option>
+    <option value="MTL">MTL</option>
+    <option value="MUR">MUR</option>
+    <option value="MWK">MWK</option>
+    <option value="MXN">MXN</option>
+    <option value="MYR">MYR</option>
+    <option value="MZN">MZN</option>
+    <option value="NAD">NAD</option>
+    <option value="NGN">NGN</option>
+    <option value="NIO">NIO</option>
+    <option value="NOK">NOK</option>
+    <option value="NPR">NPR</option>
+    <option value="NZD">NZD</option>
+    <option value="OMR">OMR</option>
+    <option value="PAB">PAB</option>
+    <option value="PEN">PEN</option>
+    <option value="PGK">PGK</option>
+    <option value="PHP">PHP</option>
+    <option value="PKR">PKR</option>
+    <option value="PLN">PLN</option>
+    <option value="PRB">PRB</option>
+    <option value="PYG">PYG</option>
+    <option value="QAR">QAR</option>
+    <option value="RON">RON</option>
+    <option value="RSD">RSD</option>
+    <option value="RUB">RUB</option>
+    <option value="RWF">RWF</option>
+    <option value="SAR">SAR</option>
+    <option value="SBD">SBD</option>
+    <option value="SCR">SCR</option>
+    <option value="SEK">SEK</option>
+    <option value="SGD">SGD</option>
+    <option value="SHP">SHP</option>
+    <option value="SLL">SLL</option>
+    <option value="SOS">SOS</option>
+    <option value="SRD">SRD</option>
+    <option value="SSP">SSP</option>
+    <option value="STN">STN</option>
+    <option value="SYP">SYP</option>
+    <option value="SZL">SZL</option>
+    <option value="THB">THB</option>
+    <option value="TJS">TJS</option>
+    <option value="TMT">TMT</option>
+    <option value="TND">TND</option>
+    <option value="TOP">TOP</option>
+    <option value="TRY">TRY</option>
+    <option value="TTD">TTD</option>
+    <option value="TWD">TWD</option>
+    <option value="TZS">TZS</option>
+    <option value="UAH">UAH</option>
+    <option value="UGX">UGX</option>
+    <option value="USD">USD</option>
+    <option value="UYU">UYU</option>
+    <option value="UZS">UZS</option>
+    <option value="VND">VND</option>
+    <option value="VUV">VUV</option>
+    <option value="WST">WST</option>
+    <option value="XAF">XAF</option>
+    <option value="XCD">XCD</option>
+    <option value="XOF">XOF</option>
+    <option value="XPF">XPF</option>
+    <option value="YER">YER</option>
+    <option value="ZAR">ZAR</option>
+    <option value="ZMK">ZMK</option>
+    <option value="ZWL">ZWL</option>    
+</select>
+<br>
+<button onclick="amount()">Convert</button>
+<br>
+<p id="convertCur"></p>
+
+<script>
+    async function amount() {
+        const amount = parseFloat(document.getElementById("amount").value)
+        const fromCur = document.getElementById("fromCur").value
+        const toCur = document.getElementById("toCur").value
+
+        if (isNaN(amount)) {
+            document.getElementById("convertCur").textContent = `Please enter a number`
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${fromCur}`)
+            const data = await response.json()
+
+            const exchangeRate = data.rates[toCur]
+            if (!exchangeRate) {
+                document.getElementById("convertCur").textContent = `Currency not supported`;
+                return;
+            }
+            const convertCur = amount * exchangeRate
+
+            document.getElementById("convertCur").textContent = `${toCur}${convertCur}`
+        } catch (error) {
+            document.getElementById("convertCur").textContent = `Error fetching the rates, if you can, please try again`
+        }
+    }
+</script>
+</body>
+</html>
