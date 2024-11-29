@@ -4,9 +4,24 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color: #f9f9f9;
+    background-color:grey;
     color: #333;
-    padding: 20px;
+
+    /* Center content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+}
+#aboutMe{
+    font-family:Georgia, 'Times New Roman', Times, serif;
+}
+h4{
+    color: #444;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 /* Heading Styles */
@@ -15,6 +30,7 @@ h2 {
     border-bottom: 2px solid #ccc;
     padding-bottom: 5px;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 /* Form Labels */
@@ -29,6 +45,7 @@ input[type="text"],
 input[type="number"],
 select {
     width: 100%;
+    max-width: 400px; /* Optional: limits input width for better aesthetics */
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
@@ -38,7 +55,7 @@ select {
 
 /* Button Styles */
 button {
-    background-color: #28a745;
+    background-color: black;
     color: white;
     padding: 10px 15px;
     border: none;
@@ -48,7 +65,7 @@ button {
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: black;
 }
 
 /* Output Styles */
@@ -57,6 +74,7 @@ p {
     font-weight: bold;
     color: #555;
     margin: 10px 0;
+    text-align: center;
 }
 
 span {
@@ -65,14 +83,16 @@ span {
     color: #555;
     display: block;
     margin-top: 10px;
+    text-align: center;
 }
 
 /* Specific Section Styles */
+#convertCur,
 #calculatorResult,
 #convertedWord,
 #hcfresult,
 #greetMessage {
-    color: #007bff;
+    color: black;
 }
 
 /* Error/Alert Messages */
