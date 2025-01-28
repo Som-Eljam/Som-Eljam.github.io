@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="https://github.com/Som-Eljam/Som-Eljam.github.io/blob/main/Logo.png?raw=true" type="image/png" sizes="32x32">
+    <link rel="stylesheet" href="index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomSpace.com.au</title>
+</head>
+<body>
+
+    <div class="popup-overlay" id="popup">
+        <div class="popup-box">
+          <h2>Thanks for stopping by.</h2>
+          <p>This Website is still under progress and is not fully complete, if there are any bugs please report them to: <a href="https://mail.google.com/mail/?view=cm&fs=1&to=help.somsspace@gmail.com">help.somsspace@gmail.com</a></p>
+          <p>Thank you for your time.</p>
+          <button class="close-popup" id="closePopup">Close</button>
+        </div>
+      </div>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="biography.html">My biography</a></li>
+            <li><a href="Products.html">Products</a></li>
+            <li><a href="Contact.html">Contact Me</a></li>
+        </ul>
+    </nav>
+
+    <!-- Title of the page -->
+    <h4>Welcome to.....</h4>
+    <h1>Som's Space</h1>
+
+
+    <!-- Welcome message -->
+
+    
+    <br>
+    <label for="nameInput">Enter Your Name</label>
+    <input type="text" id="nameInput">
+    <br>
+    <button onclick="greetUser()">Welcome</button>
+    <br>
+    <p id="greetMessage"></p>
+
+    <script>
+        function greetUser() {
+            const name = document.getElementById("nameInput").value;
+            const currentHour = new Date().getHours()
+            let greetingMessage = document.getElementById("greetMessage")
+            let greeting;
+            if (currentHour < 12) {
+                greeting = "Good Morning"
+            }else if (currentHour < 17) {
+                greeting = "Good Afternon"
+            }else if (currentHour < 20) {
+                greeting = "Good Evening"
+            }
+            if (name.trim() !== "") {
+                greetingMessage.textContent = `${greeting}, ${name}!`
+            } else {
+                alert("Please enter your name")
+            }
+        }
+    </script>
+    <!-- A little about me -->
+    <h2>About me</h2>
+    <h4 id="aboutMe">My name is Som and I am currently a 14 year old student who loves STEM and coding. I have work experience and have a GPA of above 85.</h4>
+    <br>
+    <footer>
+        &copy; 2025 SomsSpace.com.au. All rights reserved.
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>
