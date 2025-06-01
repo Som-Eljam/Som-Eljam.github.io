@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #gameButtons img {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            margin: 10px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            transition: transform 0.2s, border 0.2s;
+        }
+        #gameButtons img:hover {
+            transform: scale(1.1);
+        }
+        #resultMessage {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        #score {
+            font-size: 16px;
+        }
+        .highlight {
+            font-weight: bold;
+            color: green;
+        }
+        .loser {
+            font-weight: bold;
+            color: red;
+        }
+        @keyframes flash {
+            0%, 100% {
+                background-color: transparent;
+            }
+            50% {
+                background-color: yellow;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Rock, Paper, Scissors</h1>
+
+    <p>Choose your move:</p>
+    <div id="gameButtons">
+        <img src="rock.png" alt="Rock" onclick="playGame('rock')" title="Rock">
+        <img src="paper.png" alt="Paper" onclick="playGame('paper')" title="Paper">
+        <img src="scissors.png" alt="Scissors" onclick="playGame('scissors')" title="Scissors">
+    </div>
+
+    <p id="resultMessage"></p>
+
+    <h3>Scoreboard</h3>
+    <p id="score">Human: 0 | Computer: 0 | Ties: 0</p>
+
+    <audio id="winSound" src="win.mp3"></audio>
+    <audio id="loseSound" src="lose.mp3"></audio>
+    <audio id="tieSound" src="tie.mp3"></audio>
+
+    <script>
+        // Array to store the options for the game
+        const choices = ['rock', 'paper', 'scissors'];
+
+        // Variables to track the scores
+        let human = 0;
+        let computer = 0;
+        let ties = 0;
+
+        // Function to play the game
+        function playGame(userChoice) {
+            // Get the computer's choice
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+
+            // Get the result message element
+            const resultMessage = document.getElementById("resultMessage");
+            const winSound = document.getElementById("winSound");
+            const loseSound = document.getElementById("loseSound");
+            const tieSound = document.getElementById("tieSound");
+
+            // Determine the winner
+            if (userChoice === computerChoice) {
+                ties++;
+                resultMessage.textContent = `It's a tie! Both chose ${userChoice}.`;
+                resultMessage.className = '';
+                tieSound.play();
+            } else if (
+                (userChoice === 'rock' && computerChoice === 'scissors') ||
+                (userChoice === 'paper' && computerChoice === 'rock') ||
+                (userChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                human++;
+                resultMessage.textContent = `You win! You chose ${userChoice} and the computer chose ${computerChoice}.`;
+                resultMessage.className = 'highlight';
+                winSound.play();
+            } else {
+                computer++;
+                resultMessage.textContent = `You lose! You chose ${userChoice} and the computer chose ${computerChoice}.`;
+                resultMessage.className = 'loser';
+                loseSound.play();
+            }
+
+            // Highlight the winning side in the scoreboard
+            highlightWinner();
+
+            // Update the scoreboard
+            updateScoreboard();
+        }
+
+        // Function to update the scoreboard
+        function updateScoreboard() {
+            const score = document.getElementById("score");
+            score.textContent = `Human: ${human} | Computer: ${computer} | Ties: ${ties}`;
+        }
+
+        // Function to highlight the winning side in the scoreboard
+        function highlightWinner() {
+            const score = document.getElementById("score");
+            score.style.animation = "flash 0.5s";
+        }
+    </script>
+</body>
+</html>

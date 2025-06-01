@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>To-Do List</h1>
+
+    <label for="taskInput">Add a new task: </label>
+    <input type="text" id="taskInput">
+    <button onclick="addTask()" id="addButton"> Add Task </button>
+
+    <h2>Your Tasks:</h2>
+    <ul id="taskList"></ul>
+
+    <style>
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+
+    <script>
+        // Load tasks from localStorage
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        let taskId = tasks.length > 0 ? Math.max(0, ...tasks.map(task => task.id)) + 1 : 0;
+        const button = document.getElementById('addButton');
+        const input = document.getElementById('taskInput'); // Get the input element
+
+        // Add keydown event listener to the input
+        input.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent the default form submission behavior (if any)
+                button.click(); // Trigger the button click
+            }
+        });
+
+        // Add click event listener to the button
+        button.addEventListener('click', addTask);
+
+        // Function to save tasks to localStorage
+        function saveTasks() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        // Function to add a task
+        function addTask() {
+            const taskDescription = document.getElementById("taskInput").value.trim();
+
+            const task = {
+                id: taskId++,
+                description: taskDescription,
+                completed: false
+            };
+
+            tasks.push(task);
+            saveTasks();
+
+            document.getElementById("taskInput").value = "";
+            renderTasks();
+        }
+
+        // Function to render the task list
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = ""; // Clear the list
+
+            tasks.forEach(task => {
+                const listItem = document.createElement("li");
+                listItem.className = task.completed ? "completed" : "";
+                listItem.textContent = task.description;
+
+                const toggleButton = document.createElement("button");
+                toggleButton.textContent = task.completed ? " Undo " : " Complete ";
+                toggleButton.onclick = () => toggleTaskCompletion(task.id);
+                listItem.appendChild(toggleButton);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = " Delete ";
+                deleteButton.onclick = () => deleteTask(task.id);
+                listItem.appendChild(deleteButton);
+
+                taskList.appendChild(listItem);
+            });
+        }
+
+        // Function to toggle completion status
+        function toggleTaskCompletion(id) {
+            const task = tasks.find(task => task.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            } else {
+                console.error(`Task with id ${id} not found.`);
+            }
+        }
+
+        // Function to delete a task
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        // Initial render
+        renderTasks();
+    </script>
+
+</body>
+</html>
