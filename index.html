@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="https://github.com/Som-Eljam/Som-Eljam.github.io/blob/main/Logo.png?raw=true" type="image/png" sizes="32x32">
+    <link rel="stylesheet" href="index.css">
+
+    <!-- Icons-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomSpace.com.au</title>
+</head>
+<body>
+
+    <div class="popup-overlay" id="popup">
+        <div class="popup-box">
+          <h2>Thanks for stopping by.</h2>
+          <p>This Website is still under progress and is not fully complete, if there are any bugs please report them to: <a href="https://mail.google.com/mail/?view=cm&fs=1&to=help.somsspace@gmail.com">help.somsspace@gmail.com</a></p>
+          <p>Thank you for your time.</p>
+          <h3>Navbar Logo Key:</h3>
+          <i class="material-icons" style="font-size: 35px; color: #24789e;">home</i>
+          <p>Home page</p>
+          <i class="material-icons" style="font-size: 35px; color: #24789e;">edit_note</i>
+          <p>Biography</p>
+          <i class="material-icons" style="font-size: 35px; color: #24789e;">work</i>
+          <p>Projects</p>
+          <i class="material-icons" style="font-size: 35px; color: #24789e;">chat</i>
+          <p>contact me</p>
+          <i class="material-icons" style="font-size: 35px; color: #24789e;">article</i>
+          <p>Accsess my Resume</p>
+          <button class="close-popup" id="closePopup">Close</button>
+        </div>
+      </div>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html"><i class="material-icons" style="font-size: 35px; color: #24789e;">home</i></a></li>
+            <li><a href="biography.html"><i class="material-icons" style="font-size: 35px; color: #24789e;">edit_note</i></a></li>
+            <li><a href="projects.html"><i class="material-icons" style="font-size: 35px; color: #24789e;">work</i></a></li>
+            <li><a href="Contact.html"><i class="material-icons" style="font-size: 35px; color: #24789e;">chat</i></a></li>
+            <li><a href="resume.html"><i class="material-icons" style="font-size: 35px; color: #24789e;">article</i></a></li>
+        </ul>
+    </nav>
+
+    <!-- Title of the page -->
+    <h4>Welcome to.....</h4>
+    <h1>Som's Space</h1>
+
+
+    <!-- Welcome message -->
+
+    
+    <br>
+    <label for="nameInput">Enter Your Name</label>
+    <input type="text" id="nameInput">
+    <br>
+    <button onclick="greetUser()">Welcome</button>
+    <br>
+    <p id="greetMessage"></p>
+
+    <script>
+        function greetUser() {
+            const name = document.getElementById("nameInput").value;
+            const currentHour = new Date().getHours()
+            let greetingMessage = document.getElementById("greetMessage")
+            let greeting;
+            if (currentHour < 12) {
+                greeting = "Good Morning"
+            }else if (currentHour < 17) {
+                greeting = "Good Afternon"
+            }else if (currentHour < 20) {
+                greeting = "Good Evening"
+            } else {
+                greeting = "Good Night"
+            }
+            if (name.trim() !== "") {
+                greetingMessage.textContent = `${greeting}, ${name}!`
+            } else {
+                alert("Please enter your name")
+            }
+        }
+    </script>
+    <!-- A little about me -->
+    <h2>About me</h2>
+    <h4 id="aboutMe">My name is Som and I am currently a 14 year old student who loves STEM and coding. I have work experience and have a GPA of above 85. I wish to keep this main-page simple so if you want to read more about me please go the the <a href="https://www.somsspace.com.au/biography.html"><i class="material-icons"style="align-items: center">edit_note</i>(My biography)</a> page</h4>
+    <br>
+    <footer>
+        &copy; 2025 SomsSpace.com.au. All rights reserved. By being in this website you agree to <a href="terms of service.html">Terms of Service</a>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>
