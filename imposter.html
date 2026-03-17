@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imposter Party Game FINAL</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:rgba(255,255,255,0.06);
+padding:30px;
+border-radius:25px;
+width:400px;
+text-align:center;
+}
+
+button{
+padding:12px;
+margin:6px;
+border:none;
+border-radius:10px;
+background:#00c6ff;
+font-weight:bold;
+cursor:pointer;
+}
+
+.card{
+width:230px;
+height:150px;
+margin:auto;
+perspective:1000px;
+}
+
+.card-inner{
+width:100%;
+height:100%;
+transition:0.6s;
+transform-style:preserve-3d;
+position:relative;
+}
+
+.card.flipped .card-inner{
+transform:rotateY(180deg);
+}
+
+.front,.back{
+position:absolute;
+width:100%;
+height:100%;
+backface-visibility:hidden;
+border-radius:18px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.front{
+background:#1f2b3a;
+}
+
+.back{
+background:#00c6ff;
+color:black;
+transform:rotateY(180deg);
+}
+
+.hidden{display:none;}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🔥 Imposter Party Game</h2>
+
+<div id="setup">
+
+<input id="playerNames"
+placeholder="Enter player names comma separated">
+
+<br><br>
+
+<input type="number" id="playerCount"
+value="3" min="3">
+
+<br><br>
+
+<button onclick="startGame()">Start Game</button>
+
+</div>
+
+<div id="game" class="hidden">
+
+<h3 id="playerTitle"></h3>
+
+<div class="card" id="flipCard">
+<div class="card-inner">
+
+<div class="front">Tap Reveal 😈</div>
+<div class="back" id="roleText"></div>
+
+</div>
+</div>
+
+<button onclick="revealRole()">Reveal</button>
+<button onclick="hideRole()">Hide</button>
+<button onclick="nextPlayer()">Next Player</button>
+
+</div>
+
+<div id="discussion" class="hidden">
+<h3>Discuss Who The Imposter Is 😈</h3>
+
+<h4 id="starterText"></h4>
+
+<button onclick="revealImposter()">Reveal Imposter</button>
+</div>
+
+<div id="endScreen" class="hidden">
+
+<h2 id="endText"></h2>
+
+<button onclick="restartGame()">Replay 🔄</button>
+
+</div>
+
+</div>
+
+<script>
+
+/* WORD DATABASE */
+
+const words = [
+  // ── RACES / ETHNIC GROUPS ──────────────────────────────────────────────────
+  { word: "Nordic", clue: "Race" },
+  { word: "Slavic", clue: "Race" },
+  { word: "Germanic", clue: "Race" },
+  { word: "Arab", clue: "Race" },
+  { word: "Persian", clue: "Race" },
+  { word: "Turkic", clue: "Race" },
+  { word: "Kurdish", clue: "Race" },
+  { word: "Hispanic", clue: "Cultural / Ethnic Group" },
+  { word: "Black American", clue: "Cultural / Ethnic Group" },
+  { word: "Maori", clue: "Indigenous People" },
+  { word: "Jewish", clue: "Religious / Ethnic Group" },
+  { word: "Tibetan", clue: "Ethnic Group" },
+  { word: "Romani", clue: "Ethnic Group" },
+  { word: "Inuit", clue: "Indigenous People" },
+  { word: "Aboriginal Australian", clue: "Indigenous People" },
+  { word: "Amazonian Tribe", clue: "Indigenous People" },
+  { word: "Basque", clue: "Ethnic Group" },
+  { word: "Han Chinese", clue: "Ethnic Group" },
+  { word: "Punjabi", clue: "Ethnic Group" },
+
+  // ── SCIENTISTS ─────────────────────────────────────────────────────────────
+  { word: "Isaac Newton", clue: "Scientist" },
+  { word: "Nikola Tesla", clue: "Scientist" },
+  { word: "Stephen Hawking", clue: "Scientist" },
+  { word: "Albert Einstein", clue: "Scientist" },
+  { word: "Marie Curie", clue: "Scientist" },
+  { word: "Charles Darwin", clue: "Scientist" },
+  { word: "Galileo Galilei", clue: "Scientist" },
+  { word: "Neil deGrasse Tyson", clue: "Scientist / TV Personality" },
+  { word: "Bill Nye", clue: "Science Guy 🤓" },
+  { word: "Robert Oppenheimer", clue: "Scientist (Uh oh)" },
+
+  // ── ANIMALS ────────────────────────────────────────────────────────────────
+  { word: "Horse", clue: "Animal" },
+  { word: "Capybara", clue: "Internet's Favourite Animal" },
+  { word: "Platypus", clue: "Animal (God was drunk)" },
+  { word: "Tardigrade", clue: "Microscopic Survivor" },
+  { word: "Naked Mole Rat", clue: "Animal (Nature's Mistake)" },
+  { word: "Axolotl", clue: "Animal / TikTok Mascot" },
+  { word: "Honey Badger", clue: "Animal (Doesn't Care)" },
+  { word: "Blue-Ringed Octopus", clue: "Adorable Death Machine" },
+  { word: "Komodo Dragon", clue: "Animal" },
+  { word: "Mantis Shrimp", clue: "Animal (Punches Hard)" },
+  { word: "Goblin Shark", clue: "Deep Sea Nightmare" },
+  { word: "Aye-Aye", clue: "Cursed Primate" },
+  { word: "Pangolin", clue: "Animal (Started a Pandemic, allegedly)" },
+  { word: "Dolphin", clue: "Animal (Surprisingly Dark)" },
+  { word: "Crow", clue: "Smarter Than Your Dog" },
+
+  // ── HISTORICAL LEADERS / FIGURES ──────────────────────────────────────────
+  { word: "Napoleon Bonaparte", clue: "Historical Leader (Short King)" },
+  { word: "Adolf Hitler", clue: "Historical Figure (The Worst)" },
+  { word: "Joseph Stalin", clue: "Historical Figure (Also Terrible)" },
+  { word: "Cleopatra", clue: "Historical Leader" },
+  { word: "Julius Caesar", clue: "Historical Leader (Et tu, Brute?)" },
+  { word: "Genghis Khan", clue: "Historical Figure (Very Busy)" },
+  { word: "Alexander the Great", clue: "Historical Leader" },
+  { word: "Attila the Hun", clue: "Historical Leader (Unhinged)" },
+  { word: "Vlad the Impaler", clue: "Historical Figure (Original Dracula)" },
+  { word: "Nero", clue: "Historical Leader (Fiddled While Rome Burned)" },
+  { word: "Caligula", clue: "Historical Leader (Do Not Google)" },
+  { word: "Ivan the Terrible", clue: "Historical Leader (Named Accurately)" },
+  { word: "Pol Pot", clue: "Historical Figure (Horrific)" },
+  { word: "Idi Amin", clue: "Historical Leader (Unhinged Dictator)" },
+  { word: "Mussolini", clue: "Historical Leader (Train Guy)" },
+  { word: "Mao Zedong", clue: "Historical Leader / Mass Disaster" },
+  { word: "Kim Il Sung", clue: "Historical Leader (North Korea Grandpa)" },
+  { word: "Francisco Franco", clue: "Historical Leader (Spain's Problem)" },
+  { word: "Augusto Pinochet", clue: "Historical Leader (Helicopter Enthusiast)" },
+  { word: "Queen Victoria", clue: "Historical Leader (Colonial Era)" },
+  { word: "Henry VIII", clue: "Historical Leader (Wife Collector)" },
+  { word: "Rasputin", clue: "Historical Figure (Impossible to Kill)" },
+  { word: "Nikita Khrushchev", clue: "Historical Leader (Shoe Banger)" },
+
+  // ── CURRENT / CONTROVERSIAL POLITICAL FIGURES ─────────────────────────────
+  { word: "Donald Trump", clue: "Politics (Very Online)" },
+  { word: "Joe Biden", clue: "Politics (Nap Time)" },
+  { word: "Vladimir Putin", clue: "Politics (Shirtless Horse Guy)" },
+  { word: "Benjamin Netanyahu", clue: "Politics (Controversial)" },
+  { word: "Recep Tayyip Erdoğan", clue: "Politics" },
+  { word: "Kim Jong Un", clue: "Politics (Supreme Meme)" },
+  { word: "Xi Jinping", clue: "Politics (Winnie the Pooh, apparently)" },
+  { word: "Emmanuel Macron", clue: "Politics (Very French)" },
+  { word: "Jair Bolsonaro", clue: "Politics (Brazil's Trump)" },
+  { word: "Saddam Hussein", clue: "Politics (Found in a Hole)" },
+  { word: "Osama bin Laden", clue: "Militant Leader" },
+  { word: "El Chapo", clue: "Crime / Politics (Tunnel Expert)" },
+  { word: "Pablo Escobar", clue: "Crime / Politics (Netflix Made Him Cool)" },
+  { word: "Ali Khamenei", clue: "Politics (Supreme Leader)" },
+  { word: "Bashar al-Assad", clue: "Politics (Controversial)" },
+  { word: "Mohammed bin Salman", clue: "Politics (MBS)" },
+  { word: "Muammar Gaddafi", clue: "Politics (Interesting Fashion)" },
+  { word: "Hugo Chavez", clue: "Politics (Venezuela's Drama)" },
+  { word: "Nicolas Maduro", clue: "Politics (Venezuela's More Drama)" },
+  { word: "Lukashenko", clue: "Politics (Europe's Last Dictator, allegedly)" },
+  { word: "Narendra Modi", clue: "Politics (India)" },
+  { word: "Recep Tayyip Erdoğan", clue: "Politics (Turkey)" },
+  { word: "Viktor Orbán", clue: "Politics (Hungary's Problem)" },
+  { word: "Nigel Farage", clue: "Politics (Brexit Guy)" },
+  { word: "Boris Johnson", clue: "Politics (Messy Hair, Messier Policies)" },
+  { word: "Giorgia Meloni", clue: "Politics (Italy)" },
+  { word: "Marine Le Pen", clue: "Politics (France, Far Right)" },
+  { word: "Rodrigo Duterte", clue: "Politics (Philippines, Unhinged)" },
+  { word: "Imran Khan", clue: "Politics (Cricket PM)" },
+  { word: "Zelensky", clue: "Politics (Former Comedian, Now Legend)" },
+  { word: "George W. Bush", clue: "Politics (Pretzel Incident)" },
+  { word: "Dick Cheney", clue: "Politics (Shot a Guy)" },
+  { word: "Hillary Clinton", clue: "Politics (The Emails)" },
+  { word: "Bernie Sanders", clue: "Politics (Mittens)" },
+  { word: "AOC", clue: "Politics (Twitter's Favourite)" },
+  { word: "Ron DeSantis", clue: "Politics (Florida Man, Governor Edition)" },
+  { word: "Elon Musk", clue: "Business / Politics (Buys Everything)" },
+  { word: "Giorgia Meloni", clue: "Politics" },
+  { word: "Lula da Silva", clue: "Politics (Brazil)" },
+  { word: "Prabowo Subianto", clue: "Politics (Indonesia)" },
+  { word: "Yoon Suk-yeol", clue: "Politics (Briefly Declared Martial Law)" },
+  { word: "Scott Morrison", clue: "Politics (Australia, Hawaii Escapee)" },
+  { word: "Anthony Albanese", clue: "Politics (Australia)" },
+
+  // ── BUSINESS / TECH FIGURES ────────────────────────────────────────────────
+  { word: "Elon Musk", clue: "Business / Tech (Buys Everything)" },
+  { word: "Mark Zuckerberg", clue: "Tech Founder (Robot in a Human Suit)" },
+  { word: "Jeff Bezos", clue: "Business (Amazon Box Guy)" },
+  { word: "Steve Jobs", clue: "Tech Founder (Turtleneck Icon)" },
+  { word: "Bill Gates", clue: "Tech (Mosquito Agenda)" },
+  { word: "Sam Altman", clue: "Tech (ChatGPT Boss)" },
+  { word: "Larry Page", clue: "Tech (Google Guy)" },
+  { word: "Sergey Brin", clue: "Tech (Other Google Guy)" },
+  { word: "Jack Dorsey", clue: "Tech (Twitter OG, Meditation Guy)" },
+  { word: "Peter Thiel", clue: "Tech / Politics (Blood Boy, allegedly)" },
+  { word: "Adam Neumann", clue: "Business (WeWork Disaster)" },
+  { word: "Elizabeth Holmes", clue: "Business (Theranos Fraudster)" },
+  { word: "Sam Bankman-Fried", clue: "Crypto (Went to Prison)" },
+  { word: "Do Kwon", clue: "Crypto (Also Went to Prison)" },
+  { word: "Bernie Madoff", clue: "Business (Biggest Ponzi Ever)" },
+
+  // ── CELEBRITIES / POP CULTURE ─────────────────────────────────────────────
+  { word: "Kim Kardashian", clue: "Reality TV (Famous for Being Famous)" },
+  { word: "Logan Paul", clue: "YouTube (Somehow Still Relevant)" },
+  { word: "Jake Paul", clue: "YouTube (Became a Boxer??)" },
+  { word: "Kanye West", clue: "Music / Controversy (Main Character)" },
+  { word: "J.K. Rowling", clue: "Author / Twitter Villain (Some say)" },
+  { word: "Pokimane", clue: "Twitch (Parasocial Queen)" },
+  { word: "MrBeast", clue: "YouTube (Gives Away Money)" },
+  { word: "PewDiePie", clue: "YouTube (OG King)" },
+  { word: "Cardi B", clue: "Music (Okurr)" },
+  { word: "Nicki Minaj", clue: "Music (Beef Expert)" },
+  { word: "Taylor Swift", clue: "Music (The Eras of Drama)" },
+  { word: "Beyoncé", clue: "Music (Literally a Religion)" },
+  { word: "Drake", clue: "Music (Certified Controversy)" },
+  { word: "Eminem", clue: "Music (Mom's Spaghetti)" },
+  { word: "Lil Wayne", clue: "Music (Did NOT Die)" },
+  { word: "Snoop Dogg", clue: "Music / Olympic Correspondent" },
+  { word: "Chris Brown", clue: "Music (Cancelled, Uncancelled, Cancelled)" },
+  { word: "Amber Heard", clue: "Pop Culture (Aquaman's Mistake)" },
+  { word: "Johnny Depp", clue: "Pop Culture (Won the Trial)" },
+  { word: "Justin Bieber", clue: "Music (Grew Up Awkwardly)" },
+  { word: "Miley Cyrus", clue: "Music (Hannah Montana Era Ended)" },
+  { word: "Lady Gaga", clue: "Music (Meat Dress Era)" },
+  { word: "Billie Eilish", clue: "Music (Gen Z's Voice)" },
+  { word: "Ariana Grande", clue: "Music (Tiny Human, Big Voice)" },
+  { word: "Doja Cat", clue: "Music (Very Online)" },
+  { word: "Ice Spice", clue: "Music (Munch)" },
+  { word: "Andrew Tate", clue: "Controversy (Matrix Escapee)" },
+  { word: "Joe Rogan", clue: "Podcast (DMT Enthusiast)" },
+  { word: "Jeffrey Epstein", clue: "Controversial Figure (Didn't Kill Himself)" },
+  { word: "Harvey Weinstein", clue: "Controversial Figure (Prison)" },
+  { word: "Will Smith", clue: "Pop Culture (The Slap)" },
+  { word: "Jada Pinkett Smith", clue: "Pop Culture (Entanglement)" },
+  { word: "Chris Rock", clue: "Comedy (Got Slapped)" },
+  { word: "Ye (Kanye)", clue: "Music (Twitter Chaos)" },
+  { word: "Hailey Bieber", clue: "Celebrity (Wife of Justin)" },
+  { word: "Selena Gomez", clue: "Music / Drama Adjacent" },
+  { word: "Kylie Jenner", clue: "Billionaire (??) Lip Kit" },
+  { word: "Paris Hilton", clue: "OG Reality TV Star" },
+  { word: "Lindsay Lohan", clue: "Celebrity (Comeback Arc)" },
+  { word: "Charlie Sheen", clue: "Celebrity (Winning)" },
+  { word: "Shia LaBeouf", clue: "Celebrity (Do It)" },
+  { word: "Nicolas Cage", clue: "Actor (Peak Internet Legend)" },
+  { word: "Keanu Reeves", clue: "Actor (Internet's Favourite Person)" },
+  { word: "Ryan Reynolds", clue: "Actor / Marketing Genius" },
+  { word: "Dwayne Johnson", clue: "Actor / Can You Smell It" },
+  { word: "Gordon Ramsay", clue: "Chef (IDIOT SANDWICH)" },
+  { word: "Guy Fieri", clue: "Chef (Flavourtown Mayor)" },
+  { word: "Salt Bae", clue: "Chef (Peak Meme Era)" },
+  { word: "Oprah Winfrey", clue: "TV (YOU GET A CAR)" },
+  { word: "Ellen DeGeneres", clue: "TV (Allegedly Not That Nice)" },
+  { word: "James Charles", clue: "Beauty YouTuber (Drama Machine)" },
+
+  // ── ATHLETES ──────────────────────────────────────────────────────────────
+  { word: "Cristiano Ronaldo", clue: "Athlete (SIUUU)" },
+  { word: "Lionel Messi", clue: "Athlete (The GOAT, probably)" },
+  { word: "Serena Williams", clue: "Athlete" },
+  { word: "Usain Bolt", clue: "Athlete (Lightning)" },
+  { word: "Michael Jordan", clue: "Athlete (And I Took That Personally)" },
+  { word: "LeBron James", clue: "Athlete (Forehead Debate)" },
+  { word: "Muhammad Ali", clue: "Athlete (Greatest of All Time)" },
+  { word: "Tiger Woods", clue: "Athlete (Fire Hydrant Era)" },
+  { word: "Lance Armstrong", clue: "Athlete (Took Shortcuts)" },
+  { word: "Floyd Mayweather", clue: "Athlete (Undefeated, Unreadable)" },
+  { word: "Conor McGregor", clue: "Athlete (Talked More Than Fought)" },
+  { word: "Mike Tyson", clue: "Athlete (Ear Collector)" },
+  { word: "Simone Biles", clue: "Athlete (Gravity Optional)" },
+  { word: "Roger Federer", clue: "Athlete (Tennis Gentleman)" },
+  { word: "Rafael Nadal", clue: "Athlete (Clay God)" },
+  { word: "Novak Djokovic", clue: "Athlete (Antivaxxer Edition)" },
+  { word: "Shaquille O'Neal", clue: "Athlete / DJ / Entrepreneur" },
+  { word: "Kobe Bryant", clue: "Athlete (Mamba Forever)" },
+  { word: "Neymar", clue: "Athlete (Professional Faller)" },
+  { word: "Zlatan Ibrahimovic", clue: "Athlete (Third Person Talker)" },
+  { word: "Lewis Hamilton", clue: "Athlete (F1 Goat)" },
+  { word: "Max Verstappen", clue: "Athlete (Penalised Daily)" },
+
+  // ── COUNTRIES ─────────────────────────────────────────────────────────────
+  { word: "United States", clue: "Country" },
+  { word: "China", clue: "Country" },
+  { word: "India", clue: "Country" },
+  { word: "Germany", clue: "Country" },
+  { word: "France", clue: "Country (Baguette Central)" },
+  { word: "Brazil", clue: "Country" },
+  { word: "Japan", clue: "Country" },
+  { word: "Australia", clue: "Country (Everything Wants to Kill You)" },
+  { word: "Canada", clue: "Country (Apologises a Lot)" },
+  { word: "United Kingdom", clue: "Country (Tea Drinkers)" },
+  { word: "Russia", clue: "Country (Big Sad)" },
+  { word: "Italy", clue: "Country (Pasta is a Religion)" },
+  { word: "Mexico", clue: "Country" },
+  { word: "South Africa", clue: "Country" },
+  { word: "Egypt", clue: "Country" },
+  { word: "Argentina", clue: "Country (Messi Tax)" },
+  { word: "Spain", clue: "Country" },
+  { word: "Norway", clue: "Country (Oil Rich, Sad Films)" },
+  { word: "Sweden", clue: "Country (IKEA Homeland)" },
+  { word: "New Zealand", clue: "Country (Hobbit Territory)" },
+  { word: "Greece", clue: "Country (Invented Democracy, Went Broke)" },
+  { word: "Saudi Arabia", clue: "Country" },
+  { word: "Turkey", clue: "Country (Also a Bird)" },
+  { word: "Thailand", clue: "Country" },
+  { word: "Vietnam", clue: "Country" },
+  { word: "Philippines", clue: "Country" },
+  { word: "Pakistan", clue: "Country" },
+  { word: "Bangladesh", clue: "Country" },
+  { word: "South Korea", clue: "Country (K-Pop Factory)" },
+  { word: "North Korea", clue: "Country (Very Closed)" },
+  { word: "Nigeria", clue: "Country" },
+  { word: "Kenya", clue: "Country" },
+  { word: "Morocco", clue: "Country" },
+  { word: "Indonesia", clue: "Country" },
+  { word: "Colombia", clue: "Country (Netflix Made It Famous)" },
+  { word: "Chile", clue: "Country" },
+  { word: "Switzerland", clue: "Country (Neutral About Everything)" },
+  { word: "Netherlands", clue: "Country (Tall People, Legal Things)" },
+  { word: "Belgium", clue: "Country (Waffles and Identity Crisis)" },
+  { word: "Portugal", clue: "Country" },
+  { word: "Poland", clue: "Country" },
+  { word: "Ukraine", clue: "Country (Resilient)" },
+  { word: "Czech Republic", clue: "Country" },
+  { word: "Finland", clue: "Country (Happiest, Allegedly)" },
+  { word: "Denmark", clue: "Country" },
+  { word: "Ireland", clue: "Country (Potatoes and Pubs)" },
+  { word: "Iceland", clue: "Country (Green Would've Been Better Name)" },
+  { word: "Singapore", clue: "Country (Fine for Everything)" },
+  { word: "Malaysia", clue: "Country" },
+  { word: "Iran", clue: "Country" },
+  { word: "Iraq", clue: "Country (Had a Rough Few Decades)" },
+  { word: "Syria", clue: "Country" },
+  { word: "Israel", clue: "Country (Very Complicated)" },
+  { word: "Palestine", clue: "Country (Very Complicated)" },
+  { word: "Afghanistan", clue: "Country (Rough History)" },
+  { word: "Yemen", clue: "Country" },
+  { word: "Somalia", clue: "Country (Pirate Reputation)" },
+  { word: "Ethiopia", clue: "Country" },
+  { word: "Zimbabwe", clue: "Country (Hyperinflation Hall of Fame)" },
+  { word: "Venezuela", clue: "Country (Economic Drama)" },
+  { word: "Cuba", clue: "Country (Embargo Island)" },
+  { word: "Haiti", clue: "Country (First Black Republic)" },
+  { word: "Bolivia", clue: "Country (Lithium Rich)" },
+  { word: "Peru", clue: "Country (Machu Picchu)" },
+  { word: "Greenland", clue: "Country (Trump Wants It)" },
+  { word: "Vatican City", clue: "Country (Tiny God Zone)" },
+  { word: "Monaco", clue: "Country (Rich People Parking Lot)" },
+  { word: "Luxembourg", clue: "Country (Who?)" },
+  { word: "Liechtenstein", clue: "Country (Google It)" },
+
+  // ── CITIES ────────────────────────────────────────────────────────────────
+  { word: "New York", clue: "City (Everyone's Ex Lives There)" },
+  { word: "Tokyo", clue: "City" },
+  { word: "London", clue: "City (It Will Rain)" },
+  { word: "Paris", clue: "City (Romanticised by People Who Haven't Been)" },
+  { word: "Sydney", clue: "City" },
+  { word: "Dubai", clue: "City (Gold Vending Machines)" },
+  { word: "Rome", clue: "City (Eternal Traffic Jam)" },
+  { word: "Barcelona", clue: "City" },
+  { word: "Moscow", clue: "City" },
+  { word: "Beijing", clue: "City" },
+  { word: "Los Angeles", clue: "City (Traffic is the Culture)" },
+  { word: "Las Vegas", clue: "City (What Happens There...)" },
+  { word: "Miami", clue: "City (Florida Man HQ)" },
+  { word: "Chicago", clue: "City (Deep Dish Capital)" },
+  { word: "Houston", clue: "City (Space Cowboys)" },
+  { word: "Toronto", clue: "City (Politely Canadian)" },
+  { word: "Berlin", clue: "City (Club Capital)" },
+  { word: "Amsterdam", clue: "City (Bikes and... other things)" },
+  { word: "Seoul", clue: "City" },
+  { word: "Bangkok", clue: "City (Officially Named Something Else)" },
+  { word: "Mumbai", clue: "City (Bollywood HQ)" },
+  { word: "Cairo", clue: "City (Pyramids Nearby)" },
+  { word: "Istanbul", clue: "City (Used to Be Constantinople)" },
+  { word: "Lagos", clue: "City (Largest in Africa)" },
+  { word: "São Paulo", clue: "City (Massive)" },
+  { word: "Buenos Aires", clue: "City (Tango Central)" },
+  { word: "Mexico City", clue: "City (Sinking Slowly)" },
+  { word: "Singapore", clue: "City-State (Everything is a Fine)" },
+  { word: "Kyiv", clue: "City (Brave)" },
+  { word: "Riyadh", clue: "City" },
+  { word: "Tehran", clue: "City" },
+  { word: "Pyongyang", clue: "City (Very Photogenic, Allegedly)" },
+  { word: "Kabul", clue: "City" },
+  { word: "Havana", clue: "City (Old Cars Everywhere)" },
+  { word: "Nairobi", clue: "City" },
+  { word: "Johannesburg", clue: "City" },
+  { word: "Adelaide", clue: "City (Underrated)" },
+  { word: "Wellington", clue: "City" },
+  { word: "Copenhagen", clue: "City (Very Hygge)" },
+  { word: "Vienna", clue: "City (Mozart's Hometown)" },
+
+  // ── VIDEO GAMES ───────────────────────────────────────────────────────────
+  { word: "Roblox", clue: "Video Game (Raised a Generation)" },
+  { word: "Among Us", clue: "Video Game (2020 Peak)" },
+  { word: "Schedule 1", clue: "Video Game (You're a Drug Dealer)" },
+  { word: "Minecraft", clue: "Video Game (Block Therapy)" },
+  { word: "Fortnite", clue: "Video Game (Dad's Nightmare)" },
+  { word: "GTA 5", clue: "Video Game (Still Selling)" },
+  { word: "Call of Duty", clue: "Video Game (12-Year-Old Trauma)" },
+  { word: "League of Legends", clue: "Video Game (Relationship Destroyer)" },
+  { word: "Valorant", clue: "Video Game (Aim Training Addiction)" },
+  { word: "Elden Ring", clue: "Video Game (You Will Suffer)" },
+  { word: "Dark Souls", clue: "Video Game (You Died)" },
+  { word: "FIFA", clue: "Video Game (Spend Money, Still Lose)" },
+  { word: "Stardew Valley", clue: "Video Game (Quit Your Job Simulator)" },
+  { word: "The Sims", clue: "Video Game (God Complex Simulator)" },
+  { word: "Red Dead Redemption", clue: "Video Game (Cowboy Feels)" },
+  { word: "Cyberpunk 2077", clue: "Video Game (Broken Launch, Great Now)" },
+  { word: "Genshin Impact", clue: "Video Game (Wallet Destroyer)" },
+  { word: "Candy Crush", clue: "Video Game (Mom's Addiction)" },
+  { word: "Clash of Clans", clue: "Video Game (Dad's Addiction)" },
+  { word: "Pokémon GO", clue: "Video Game (Walked Outside Once)" },
+  { word: "World of Warcraft", clue: "Video Game (Marriage Ender)" },
+  { word: "Overwatch", clue: "Video Game (Died Twice)" },
+  { word: "Counter-Strike", clue: "Video Game (Classic Headshot)" },
+  { word: "Tetris", clue: "Video Game (Brain Rot Classic)" },
+
+  // ── RELIGIONS / BELIEF SYSTEMS ────────────────────────────────────────────
+  { word: "Christianity", clue: "Religion" },
+  { word: "Islam", clue: "Religion" },
+  { word: "Hinduism", clue: "Religion" },
+  { word: "Buddhism", clue: "Religion" },
+  { word: "Atheism", clue: "Belief System (Very Vocal About It)" },
+  { word: "Judaism", clue: "Religion" },
+  { word: "Sikhism", clue: "Religion" },
+  { word: "Shinto", clue: "Religion" },
+  { word: "Scientology", clue: "Religion (??) (Celebrities Love It)" },
+  { word: "Mormonism", clue: "Religion (Utah Edition)" },
+  { word: "Satanism", clue: "Religion (Actually Mostly Just Lawyers)" },
+  { word: "Agnosticism", clue: "Belief System (Undecided)" },
+  { word: "Taoism", clue: "Religion / Philosophy" },
+  { word: "Paganism", clue: "Religion (Pre-Christian)" },
+  { word: "Rastafarianism", clue: "Religion (Jamaica)" },
+  { word: "Zoroastrianism", clue: "Religion (Ancient Persian)" },
+  { word: "Flat Earth", clue: "Belief System (No, Just No)" },
+
+  // ── INTERNET / MEME CULTURE ───────────────────────────────────────────────
+  { word: "Sigma Male", clue: "Internet Concept (Grindset)" },
+  { word: "Chad", clue: "Internet Meme (Alpha Gigachad)" },
+  { word: "NPC", clue: "Internet Concept (Background Character)" },
+  { word: "Slay", clue: "Internet Slang (You Did That)" },
+  { word: "Rizz", clue: "Internet Slang (Natural Charisma)" },
+  { word: "Skibidi Toilet", clue: "Internet Content (Children's Lore)" },
+  { word: "Brain Rot", clue: "Internet Diagnosis (You Have It)" },
+  { word: "Delulu", clue: "Internet Slang (Delusional, Affectionately)" },
+  { word: "Slay Queen", clue: "Internet Slang" },
+  { word: "Ratio", clue: "Internet Concept (Twitter War)" },
+  { word: "Touch Grass", clue: "Internet Advice (Go Outside)" },
+  { word: "Copium", clue: "Internet Drug (For Losers, Ironically)" },
+  { word: "Rent Free", clue: "Internet Phrase (Living in Your Head)" },
+  { word: "No Cap", clue: "Internet Slang (Not Lying, Allegedly)" },
+  { word: "Mid", clue: "Internet Critique (Mediocre)" },
+  { word: "Based", clue: "Internet Compliment (Sometimes)" },
+  { word: "Cringe", clue: "Internet Verdict (You Know It When You See It)" },
+  { word: "Goat", clue: "Internet Acronym (Greatest of All Time)" },
+  { word: "L + Ratio", clue: "Internet Insult Combo" },
+  { word: "Understood the Assignment", clue: "Internet Compliment" },
+  { word: "It's Giving", clue: "Internet Phrase (Vibes)" },
+  { word: "Real", clue: "Internet Agreement (Very Deep, Trust)" },
+  { word: "Caught in 4K", clue: "Internet Phrase (Got Exposed)" },
+  { word: "OK Boomer", clue: "Internet Clapback (2019 Peak)" },
+  { word: "Minecraft Villager", clue: "Gaming Meme (Hmm)" },
+  { word: "Shrek", clue: "Movie / Internet God" },
+  { word: "Gru", clue: "Movie / Meme Plan Template" },
+  { word: "Distracted Boyfriend", clue: "Meme (Classic)" },
+  { word: "This is Fine Dog", clue: "Meme (Relatable Disaster)" },
+  { word: "Doomer", clue: "Internet Archetype (Very Sad, Very Online)" },
+  { word: "Femboy", clue: "Internet Subculture" },
+  { word: "Gigachad", clue: "Internet Meme (Peak Male, Apparently)" },
+
+  // ── CONCEPTS / IDEAS ──────────────────────────────────────────────────────
+  { word: "Capitalism", clue: "Economic System (Loves Itself)" },
+  { word: "Communism", clue: "Economic System (Great in Theory, ask Marx)" },
+  { word: "Socialism", clue: "Economic System (Twitter's Favourite)" },
+  { word: "Anarchism", clue: "Political Ideology (No Rules, Somehow Rules)" },
+  { word: "Feminism", clue: "Movement (Some People Weirdly Mad About It)" },
+  { word: "Cancel Culture", clue: "Social Phenomenon" },
+  { word: "Privilege", clue: "Social Concept (Controversial Dinner Topic)" },
+  { word: "Simulation Theory", clue: "Existential Crisis Starter" },
+  { word: "Climate Change", clue: "Science (Happening)" },
+  { word: "Conspiracy Theory", clue: "Belief Category (Rabbit Hole Warning)" },
+  { word: "Gaslighting", clue: "Psychology Term (Now Used for Everything)" },
+  { word: "Trauma Response", clue: "Psychology (Used on Twitter A Lot)" },
+  { word: "Manifesting", clue: "Belief Practice (Vision Board Energy)" },
+  { word: "NFT", clue: "Tech Concept (Remember When?)" },
+  { word: "Crypto", clue: "Finance (Buy High, Panic, Sell Low)" },
+  { word: "AI", clue: "Technology (Taking Your Job, Maybe)" },
+  { word: "Dark Web", clue: "Internet Layer (Not for the Curious)" },
+  { word: "Area 51", clue: "Military Base / Meme" },
+  { word: "Bermuda Triangle", clue: "Mystery Zone" },
+  { word: "Illuminati", clue: "Conspiracy (They're Everywhere)" },
+  { word: "Deep State", clue: "Conspiracy (Very Popular Concept)" },
+  { word: "The Matrix", clue: "Film / Philosophy" },
+  { word: "Multiverse", clue: "Physics / Marvel Plotline" },
+  { word: "Nepo Baby", clue: "Social Concept (Born on Third Base)" },
+
+  // ── FOOD / DRINKS ─────────────────────────────────────────────────────────
+  { word: "Pineapple Pizza", clue: "Food (Divisive)" },
+  { word: "Avocado Toast", clue: "Food (Millennial Housing Crisis Cause)" },
+  { word: "Sushi", clue: "Food" },
+  { word: "Taco Bell", clue: "Food (3am Emergency)" },
+  { word: "McDonald's", clue: "Food (Globally Unavoidable)" },
+  { word: "Vegemite", clue: "Food (Australian Punishment)" },
+  { word: "Durian", clue: "Fruit (Smells Like Crime)" },
+  { word: "Kale", clue: "Food (Health Influencer Fuel)" },
+  { word: "Energy Drinks", clue: "Food (Slow Death, Tasty)" },
+  { word: "Instant Noodles", clue: "Food (University Survival)" },
+  { word: "Kombucha", clue: "Drink (Fermented Trendy Vinegar)" },
+  { word: "Oat Milk", clue: "Drink (Barista's Nemesis)" },
+  { word: "Matcha", clue: "Drink (Green Aesthetic)" },
+  { word: "Doomscrolling Coffee", clue: "Morning Ritual (Just Called Coffee)" },
+
+  // ── MISC / RANDOM CHAOS ───────────────────────────────────────────────────
+  { word: "Florida Man", clue: "News Phenomenon" },
+  { word: "Wall Street Bets", clue: "Subreddit (Chaos Finance)" },
+  { word: "GameStop Stock", clue: "Finance Event (Reddit Won Once)" },
+  { word: "Dogecoin", clue: "Crypto (Joke That Made Millions)" },
+  { word: "OnlyFans", clue: "Platform (Many Career Changes)" },
+  { word: "TikTok Ban", clue: "News (Keeps Almost Happening)" },
+  { word: "Homework", clue: "Academic Torture" },
+  { word: "Sleep Deprivation", clue: "Student Lifestyle" },
+  { word: "Procrastination", clue: "Life Skill (Poorly Used)" },
+  { word: "Student Loans", clue: "Financial Horror" },
+  { word: "Side Hustle", clue: "Modern Desperation (Nice Version)" },
+  { word: "Influencer", clue: "Job (Show Me the Product)" },
+  { word: "Life Coach", clue: "Job (Unlicensed Therapist)" },
+  { word: "Yoga Retreat", clue: "Holiday (Expensive Stretching)" },
+  { word: "True Crime Podcast", clue: "Entertainment (Murder as Hobby)" },
+  { word: "Dad Jokes", clue: "Humour (Groan Guaranteed)" },
+  { word: "Gym Bro", clue: "Subculture (Do You Even Lift)" },
+  { word: "Ski Mask", clue: "Fashion / Crime Adjacent" },
+  { word: "Karen", clue: "Internet Archetype (Manager Please)" },
+  { word: "Entitled Parent", clue: "Internet Archetype (Karen's Origin Story)" },
+  { word: "Homeowners Association", clue: "Social Body (Power Hungry)" },
+  { word: "LinkedIn Post", clue: "Content (Crying in an Airport)" },
+  { word: "PowerPoint", clue: "Software (Death by Bullet Point)" },
+  { word: "IKEA", clue: "Store (Maze With Meatballs)" },
+  { word: "Monday Morning", clue: "Time (Universal Enemy)" },
+  { word: "Tax Season", clue: "Annual Trauma" },
+  { word: "Jury Duty", clue: "Civic Event (Everyone Avoids)" },
+  { word: "Airport Security", clue: "Experience (Shoes Off, Dignity Gone)" },
+  { word: "Algorithms", clue: "Technology (Control Your Brain)" },
+  { word: "Autocorrect", clue: "Technology (Ducking Things Up)" },
+  { word: "Terms and Conditions", clue: "Text (Nobody Reads)" },
+  { word: "Reply All", clue: "Email Crime (Inexcusable)" },
+  { word: "Printer", clue: "Technology (Only Breaks When Urgent)" },
+  { word: "Wi-Fi Password", clue: "Social Currency" },
+  { word: "Group Chat", clue: "Social Tool (Silent Chaos)" },
+  { word: "Left on Read", clue: "Social Punishment" },
+  { word: "Ghosting", clue: "Dating Phenomenon" },
+  { word: "Situationship", clue: "Dating (Almost But Not Quite)" },
+  { word: "Therapy", clue: "Self-Care (Do It)" },
+  { word: "Doomscrolling", clue: "Habit (Bad for Brain, Unstoppable)" },
+  { word: "Hustle Culture", clue: "Ideology (Sleep is for the Weak, Apparently)" },
+  { word: "Participation Trophy", clue: "Award (Controversial)" },
+  { word: "Midlife Crisis", clue: "Life Stage (Sports Car Incoming)" },
+  { word: "Zoom Call", clue: "Work Technology (Camera Optional, Pants Also)" },
+];
+
+/* Expand dataset */
+/* Expand dataset (FIXED — no early-word bias) */
+
+const originalWords = [...words];
+
+while(words.length < 700){
+    words.push(
+        originalWords[
+            Math.floor(Math.random() * originalWords.length)
+        ]
+    );
+}
+words.length=700;
+
+/* GAME STATE */
+
+let players=[];
+let currentPlayer=0;
+let imposterIndex;
+let chosenWord;
+
+/* Shuffle function */
+
+function shuffleArray(array){
+for(let i=array.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1));
+[array[i],array[j]]=[array[j],array[i]];
+}
+}
+
+/* ⭐ NEW ADDITION — IMPROVED RANDOMNESS FIX */
+function fixImposterBias(){
+    if(players.length > 1){
+        imposterIndex = Math.floor(Math.random()*players.length);
+    }
+}
+
+/* GAME FUNCTIONS */
+
+function startGame(){
+
+let names=document.getElementById("playerNames").value;
+
+players=names.split(",")
+.map(x=>x.trim())
+.filter(x=>x);
+
+let count=parseInt(document.getElementById("playerCount").value);
+
+if(players.length<count){
+alert("Not enough players");
+return;
+}
+
+players=players.slice(0,count);
+
+/* ⭐ FIX RANDOM ERROR → Shuffle FIRST */
+shuffleArray(players);
+
+currentPlayer=0;
+
+/* ⭐ Random imposter AFTER shuffle */
+imposterIndex=getFairRandomImposter();
+
+chosenWord=words[Math.floor(Math.random()*words.length)];
+
+document.getElementById("setup").classList.add("hidden");
+document.getElementById("game").classList.remove("hidden");
+
+updatePlayer();
+}
+
+function updatePlayer(){
+
+document.getElementById("playerTitle")
+.innerText=players[currentPlayer];
+
+document.getElementById("flipCard")
+.classList.remove("flipped");
+
+document.getElementById("roleText").innerHTML="";
+}
+
+function revealRole(){
+
+document.getElementById("flipCard")
+.classList.add("flipped");
+
+if(currentPlayer===imposterIndex){
+document.getElementById("roleText").innerHTML=
+"YOU ARE THE IMPOSTER 😈<br>Clue: " + chosenWord.clue;
+}
+else{
+document.getElementById("roleText").innerHTML=
+chosenWord.word;
+}
+
+}
+
+function hideRole(){
+document.getElementById("flipCard")
+.classList.remove("flipped");
+}
+
+function nextPlayer(){
+
+if(currentPlayer<players.length-1){
+currentPlayer++;
+updatePlayer();
+}
+else{
+document.getElementById("game").classList.add("hidden");
+document.getElementById("discussion").classList.remove("hidden");
+
+/* ⭐ Random starter shown here (discussion screen) */
+let starter=players[Math.floor(Math.random()*players.length)];
+document.getElementById("starterText").innerText=
+"👉 Random starter: "+starter;
+}
+
+}
+
+function revealImposter(){
+
+document.getElementById("discussion").classList.add("hidden");
+document.getElementById("endScreen").classList.remove("hidden");
+
+let starter=players[Math.floor(Math.random()*players.length)];
+
+document.getElementById("endText").innerText=
+"Imposter was Player "+(imposterIndex+1)+
+"\nWord was: "+chosenWord.word+
+"\nClue: "+chosenWord.clue+
+"\n\n👉 Random starter: "+starter;
+}
+
+function restartGame(){
+location.reload();
+}
+function getFairRandomImposter(){
+    if(players.length <= 1) return 0;
+
+    let newIndex;
+
+    do{
+        newIndex = Math.floor(Math.random()*players.length);
+    }while(newIndex === 0 && players.length > 2);
+
+    return newIndex;
+}
+</script>
+
+</body>
+</html>
