@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royal Casino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#f0c040;--gold2:#b8860b;--gold3:#ffe88a;--felt:#0b3d20;--felt2:#061a0d;--felt3:#0f4d28;--red:#c0392b;--cream:#f8f0dc;--neon:#00ffaa;--dark:#020c06;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:radial-gradient(ellipse at 20% 10%,rgba(240,192,64,.06) 0%,transparent 40%),radial-gradient(ellipse at 80% 90%,rgba(0,255,170,.04) 0%,transparent 40%),repeating-linear-gradient(60deg,transparent 0px,transparent 80px,rgba(255,255,255,.012) 80px,rgba(255,255,255,.012) 81px),var(--felt2);font-family:'Cinzel',Georgia,serif;color:var(--cream);overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(240,192,64,.3);border-radius:3px;}
+.screen{display:none;min-height:100vh;flex-direction:column;}.screen.active{display:flex;animation:screenIn .4s cubic-bezier(.22,1,.36,1);}
+@keyframes screenIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+#lobby{align-items:center;justify-content:center;gap:2.5rem;padding:3rem 2rem;}
+.lobby-crest{font-size:3.5rem;margin-bottom:.5rem;animation:float 4s ease-in-out infinite;display:block;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.lobby-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2.2rem,5vw,4.5rem);font-weight:900;line-height:1.05;background:linear-gradient(135deg,var(--gold2) 0%,var(--gold) 35%,var(--gold3) 55%,var(--gold) 75%,var(--gold2) 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:goldShimmer 4s linear infinite;}
+@keyframes goldShimmer{0%{background-position:0%}100%{background-position:300%}}
+.lobby-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.1rem;color:rgba(240,192,64,.55);letter-spacing:.3em;margin-top:.6rem;text-align:center;}
+.balance-pill{display:flex;align-items:center;gap:1.5rem;background:linear-gradient(135deg,rgba(240,192,64,.12),rgba(240,192,64,.04));border:1px solid rgba(240,192,64,.3);border-radius:60px;padding:.9rem 2.5rem;}
+.bal-label{font-size:.65rem;letter-spacing:.25em;color:rgba(240,192,64,.55);text-transform:uppercase;}
+.bal-amount{font-size:2rem;font-weight:700;color:var(--gold);line-height:1;}
+.bal-divider{width:1px;height:36px;background:rgba(240,192,64,.2);}
+.game-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;max-width:700px;width:100%;}
+@media(min-width:700px){.game-tiles{grid-template-columns:repeat(4,1fr);}}
+.gtile{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 100%);border:1px solid rgba(240,192,64,.18);border-radius:20px;padding:2rem 1rem 1.5rem;text-align:center;cursor:pointer;overflow:hidden;transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s,box-shadow .25s;}
+.gtile::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(240,192,64,.12),transparent 65%);opacity:0;transition:opacity .3s;}
+.gtile:hover{transform:translateY(-6px) scale(1.02);border-color:rgba(240,192,64,.5);box-shadow:0 16px 40px rgba(0,0,0,.5);}
+.gtile:hover::before{opacity:1;}.gtile:active{transform:scale(.96);}
+.gtile-glow{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:80px;height:80px;border-radius:50%;filter:blur(20px);opacity:.3;}
+.gtile-icon{font-size:2.8rem;display:block;margin-bottom:.8rem;position:relative;}
+.gtile-name{font-family:'Cinzel Decorative',serif;font-size:.78rem;color:var(--gold);margin-bottom:.35rem;position:relative;}
+.gtile-desc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.82rem;color:rgba(248,240,220,.4);position:relative;}
+.gtile-badge{display:inline-block;margin-top:.6rem;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.25);border-radius:20px;padding:.15rem .65rem;position:relative;}
+.refill-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0800;border:none;border-radius:14px;padding:.85rem 2.5rem;font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(240,192,64,.35);transition:transform .2s;}
+.refill-btn:hover{transform:translateY(-2px);}
+.lobby-disclaimer{font-size:.62rem;color:rgba(240,192,64,.2);letter-spacing:.18em;text-align:center;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.5rem;background:rgba(0,0,0,.6);border-bottom:1px solid rgba(240,192,64,.1);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50;flex-shrink:0;}
+.topbar-logo{font-family:'Cinzel Decorative',serif;font-size:.88rem;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:pointer;}
+.topbar-bal{font-size:.9rem;color:var(--gold);font-weight:600;}
+.topbar-back{background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.25);color:var(--gold);padding:.4rem 1rem;border-radius:8px;font-family:'Cinzel',serif;font-size:.75rem;cursor:pointer;}
+.turn-banner{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:.7rem 1.5rem;background:linear-gradient(90deg,rgba(0,255,170,.08),rgba(0,255,170,.03));border-bottom:1px solid rgba(0,255,170,.2);font-size:.9rem;}
+.turn-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.turn-name{color:var(--neon);font-weight:700;}.turn-bal{color:rgba(240,192,64,.6);font-size:.78rem;}
+.turn-dot{width:8px;height:8px;border-radius:50%;background:var(--neon);animation:pulse .9s infinite;}
+.game-body{flex:1;max-width:860px;width:100%;margin:0 auto;padding:1.5rem;display:flex;flex-direction:column;gap:1.2rem;}
+.stats-strip{display:flex;gap:.8rem;flex-wrap:wrap;}
+.stat-box{flex:1;min-width:75px;background:rgba(0,0,0,.4);border:1px solid rgba(240,192,64,.1);border-radius:12px;padding:.65rem .5rem;text-align:center;}
+.stat-v{font-size:1.25rem;font-weight:700;color:var(--gold);line-height:1;}
+.stat-l{font-size:.56rem;letter-spacing:.15em;color:rgba(240,192,64,.4);text-transform:uppercase;margin-top:.2rem;}
+.felt-zone{background:radial-gradient(ellipse at 50% 30%,var(--felt3),var(--felt));border-radius:18px;border:2px solid rgba(240,192,64,.1);padding:1.3rem 1.5rem;position:relative;overflow:hidden;}
+.zone-label{font-size:.6rem;letter-spacing:.28em;color:rgba(240,192,64,.35);text-transform:uppercase;margin-bottom:.9rem;}
+.hand-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;min-height:110px;}
+.card{width:72px;height:102px;border-radius:10px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;position:relative;flex-shrink:0;animation:dealIn .35s cubic-bezier(.34,1.56,.64,1) backwards;transition:transform .2s;}
+.card.face-up{background:linear-gradient(160deg,#ffffff,#f5efe0);border:1.5px solid rgba(0,0,0,.1);box-shadow:0 6px 18px rgba(0,0,0,.5);}
+.card.face-up:hover{transform:translateY(-8px) rotate(-2deg);}
+.card.face-down{background:linear-gradient(135deg,#1c0f4a,#0e1a52);border:1.5px solid rgba(240,192,64,.35);box-shadow:0 6px 18px rgba(0,0,0,.6);}
+.card.face-down::before{content:'';position:absolute;inset:6px;border-radius:6px;border:1px solid rgba(240,192,64,.15);}
+.card.face-down::after{content:'♦';font-size:1.8rem;color:rgba(240,192,64,.2);position:absolute;}
+.card.red{color:#c0392b;}.card.black{color:#1a1a2e;}
+.card .c-suit{font-size:1.5rem;line-height:1;}.card .c-rank{font-size:.9rem;line-height:1;font-weight:900;}
+.card-corner{position:absolute;font-size:.65rem;font-weight:900;line-height:1.15;display:flex;flex-direction:column;align-items:center;}
+.card-corner.tl{top:5px;left:6px;}.card-corner.br{bottom:5px;right:6px;transform:rotate(180deg);}
+@keyframes dealIn{from{opacity:0;transform:translateY(-35px) rotate(-12deg) scale(.7);}to{opacity:1;transform:none;}}
+.hand-total{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.6);border:2px solid rgba(240,192,64,.35);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:var(--gold);flex-shrink:0;margin-left:.4rem;}
+.hand-total.bust{border-color:var(--red);color:var(--red);animation:pulse .5s infinite;}
+.hand-total.bj{border-color:var(--neon);color:var(--neon);box-shadow:0 0 14px rgba(0,255,170,.5);}
+.chip-rack{display:flex;gap:.65rem;flex-wrap:wrap;justify-content:center;}
+.chip{width:54px;height:54px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;cursor:pointer;border:3px dashed rgba(255,255,255,.35);font-family:'Cinzel',serif;position:relative;transition:transform .2s cubic-bezier(.34,1.56,.64,1);animation:chipIn .3s cubic-bezier(.34,1.56,.64,1) backwards;user-select:none;}
+.chip::before{content:'';position:absolute;inset:5px;border-radius:50%;border:1px solid rgba(255,255,255,.18);}
+.chip:hover{transform:scale(1.18) translateY(-4px);}.chip:active{transform:scale(.88);}
+.chip.disabled{opacity:.25;pointer-events:none;}
+@keyframes chipIn{from{transform:scale(0) rotate(200deg);opacity:0}to{transform:scale(1);opacity:1}}
+.chip-5{background:radial-gradient(circle at 35% 30%,#ff8a80,#c0392b);box-shadow:0 4px 14px rgba(192,57,43,.55);}
+.chip-25{background:radial-gradient(circle at 35% 30%,#80d8ff,#0277bd);box-shadow:0 4px 14px rgba(2,119,189,.55);}
+.chip-100{background:radial-gradient(circle at 35% 30%,#69f0ae,#00897b);box-shadow:0 4px 14px rgba(0,137,123,.55);}
+.chip-500{background:radial-gradient(circle at 35% 30%,#78909c,#263238);box-shadow:0 4px 14px rgba(38,50,56,.7);}
+.chip-1000{background:radial-gradient(circle at 35% 30%,#ce93d8,#6a1b9a);box-shadow:0 4px 14px rgba(106,27,154,.55);}
+.bet-panel{background:rgba(0,0,0,.4);border:1px solid rgba(240,192,64,.12);border-radius:18px;padding:1.3rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem;}
+.bet-label{font-size:.62rem;letter-spacing:.22em;color:rgba(240,192,64,.5);text-transform:uppercase;}
+.bet-amount{font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1.1;text-align:center;}
+.btn-row{display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;}
+.btn{padding:.7rem 1.6rem;border-radius:11px;font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;cursor:pointer;border:none;letter-spacing:.06em;transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s;}
+.btn:hover{transform:translateY(-2px);}.btn:active{transform:scale(.94);}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;pointer-events:none;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0800;box-shadow:0 4px 16px rgba(240,192,64,.35);}
+.btn-red{background:linear-gradient(135deg,#e74c3c,#922b21);color:#fff;}
+.btn-blue{background:linear-gradient(135deg,#5dade2,#1a5276);color:#fff;}
+.btn-green{background:linear-gradient(135deg,#2ecc71,#1a7a40);color:#fff;}
+.btn-ghost{background:transparent;color:var(--gold);border:1px solid rgba(240,192,64,.3);}
+.btn-ghost:hover{background:rgba(240,192,64,.08);}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:500;animation:fadeIn .25s ease;}
+.result-card{background:linear-gradient(160deg,rgba(11,61,32,.98),rgba(6,26,13,.98));border:2px solid var(--gold);border-radius:26px;padding:3rem 3.5rem;text-align:center;max-width:420px;width:90%;animation:popIn .38s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 80px rgba(240,192,64,.2),0 30px 80px rgba(0,0,0,.8);position:relative;overflow:hidden;}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.result-title{font-family:'Cinzel Decorative',serif;font-size:2.2rem;font-weight:900;line-height:1.15;margin-bottom:.4rem;}
+.result-title.win{color:var(--neon);text-shadow:0 0 24px rgba(0,255,170,.5);}
+.result-title.lose{color:var(--red);}.result-title.push{color:var(--gold);}
+.result-amount{font-size:1.6rem;font-weight:700;color:var(--gold);margin:.5rem 0;}
+.result-bal{font-size:.8rem;color:rgba(240,192,64,.5);margin-bottom:.4rem;}
+.result-next{font-size:.85rem;color:var(--neon);margin-bottom:1.2rem;font-style:italic;min-height:1.4rem;font-family:'Cormorant Garamond',serif;}
+.confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:400;}
+.confetto{position:absolute;top:-20px;border-radius:2px;animation:confFall linear forwards;}
+@keyframes confFall{to{transform:translateY(110vh) rotate(800deg);opacity:0;}}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(70px);background:rgba(6,26,13,.97);border:1px solid var(--gold);border-radius:12px;padding:.7rem 2rem;font-size:.85rem;color:var(--gold);z-index:600;transition:transform .38s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.pip{display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 4px;background:rgba(240,192,64,.15);border:1px solid rgba(240,192,64,.35);transition:all .3s;}
+.pip.done{background:var(--gold);}.pip.active{background:var(--neon);border-color:var(--neon);animation:pulse .9s infinite;}
+.rtb-question{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;text-align:center;padding:1rem 1.5rem;background:rgba(0,0,0,.35);border-radius:14px;border:1px solid rgba(240,192,64,.12);color:var(--cream);line-height:1.5;}
+.slot-machine{display:flex;gap:.8rem;justify-content:center;padding:1.5rem 1rem;background:rgba(0,0,0,.55);border-radius:18px;border:2px solid rgba(240,192,64,.18);}
+.reel-wrap{display:flex;flex-direction:column;align-items:center;gap:.4rem;}
+.reel{width:88px;height:96px;background:rgba(0,0,0,.6);border-radius:12px;border:1.5px solid rgba(240,192,64,.2);display:flex;align-items:center;justify-content:center;font-size:3rem;}
+.reel.spinning{animation:reelSpin .12s linear infinite;}
+@keyframes reelSpin{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+.reel-label{font-size:.55rem;letter-spacing:.15em;color:rgba(240,192,64,.35);text-transform:uppercase;}
+.slot-result{text-align:center;margin-top:.8rem;font-size:1.1rem;font-weight:700;min-height:1.5rem;}
+.slot-result.win{color:var(--neon);}.slot-result.lose{color:rgba(248,240,220,.4);}
+.paytable{display:grid;grid-template-columns:repeat(2,1fr);gap:.45rem;}
+@media(min-width:600px){.paytable{grid-template-columns:repeat(3,1fr);}}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem .7rem;background:rgba(240,192,64,.04);border-radius:7px;font-size:.78rem;}
+.pay-row .pay-mult{color:var(--gold);font-weight:700;}
+.player-list{display:flex;flex-direction:column;gap:.7rem;}
+.player-tag{display:flex;align-items:center;justify-content:space-between;gap:.75rem;background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.15);border-radius:12px;padding:.7rem 1rem;}
+.player-tag.is-host{border-color:rgba(0,255,170,.3);}
+.player-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.mp-input-row{display:flex;gap:.7rem;}
+.mp-input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(240,192,64,.25);border-radius:10px;padding:.65rem 1rem;color:var(--cream);font-family:'Cinzel',serif;font-size:.85rem;outline:none;}
+.mp-input:focus{border-color:rgba(240,192,64,.55);}
+.mp-info{background:rgba(0,0,0,.3);border:1px solid rgba(240,192,64,.1);border-radius:12px;padding:1rem 1.2rem;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:rgba(248,240,220,.5);line-height:1.7;}
+.section-head{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.28em;color:rgba(240,192,64,.4);text-transform:uppercase;padding-bottom:.5rem;border-bottom:1px solid rgba(240,192,64,.08);}
+
+/* MP MODE SELECT */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:500px;width:100%;}
+.mode-card{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(240,192,64,.2);border-radius:18px;padding:1.8rem 1rem;text-align:center;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);}
+.mode-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.4);}
+.mode-card-icon{font-size:2.5rem;margin-bottom:.7rem;}
+.mode-card-name{font-family:'Cinzel Decorative',serif;font-size:.85rem;color:var(--gold);margin-bottom:.3rem;}
+.mode-card-desc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.8rem;color:rgba(248,240,220,.4);}
+
+/* ONLINE LOBBY */
+.room-code-display{font-family:'Cinzel Decorative',serif;font-size:3rem;color:var(--gold);letter-spacing:.3em;text-align:center;padding:1rem;background:rgba(240,192,64,.06);border:2px solid rgba(240,192,64,.25);border-radius:16px;text-shadow:0 0 20px rgba(240,192,64,.3);}
+.online-player-row{display:flex;align-items:center;gap:.8rem;padding:.65rem 1rem;background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.1);border-radius:10px;}
+.online-player-row.is-you{border-color:rgba(0,255,170,.3);}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0;}
+.status-dot.online{background:var(--neon);box-shadow:0 0 6px rgba(0,255,170,.5);}
+.waiting-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(240,192,64,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:.4rem;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PASS SCREEN */
+#pass-screen{position:fixed;inset:0;background:rgba(0,0,0,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:800;gap:1.5rem;padding:2rem;}
+#pass-screen.active{display:flex;animation:fadeIn .3s ease;}
+.pass-avatar{font-size:3.5rem;width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--neon);box-shadow:0 0 30px rgba(0,255,170,.3);}
+.pass-title{font-family:'Cinzel Decorative',serif;font-size:1.5rem;color:var(--neon);text-align:center;}
+.pass-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(248,240,220,.5);text-align:center;font-size:1rem;max-width:320px;line-height:1.6;}
+.pass-bal{font-size:1rem;color:var(--gold);}
+
+/* WINNER */
+#winner-screen{position:fixed;inset:0;background:rgba(0,0,0,.97);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:900;gap:1.5rem;padding:2rem;}
+#winner-screen.active{display:flex;animation:fadeIn .3s ease;}
+.winner-crown{font-size:5rem;animation:float 3s ease-in-out infinite;}
+.winner-title{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--gold);text-align:center;}
+.winner-name{font-family:'Cinzel Decorative',serif;font-size:2.5rem;color:var(--neon);text-align:center;text-shadow:0 0 40px rgba(0,255,170,.5);}
+.lb-wrap{background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);border-radius:16px;padding:1.2rem 2rem;min-width:260px;}
+.lb-row{display:flex;justify-content:space-between;align-items:center;gap:1.5rem;padding:.4rem 0;border-bottom:1px solid rgba(240,192,64,.08);font-size:.88rem;}
+.lb-row:last-child{border-bottom:none;}.lb-pos{color:rgba(240,192,64,.4);width:24px;}.lb-name{flex:1;}.lb-bal{color:var(--gold);}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.5) rotate(-5deg)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.green{color:#27ae60;}.red-c{color:var(--red);}.text-center{text-align:center;}
+@media(max-width:480px){.card{width:60px;height:86px;}.chip{width:46px;height:46px;font-size:.62rem;}.result-card{padding:2rem 1.5rem;}.result-title{font-size:1.7rem;}.reel{width:74px;height:82px;font-size:2.5rem;}.mode-cards{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOBBY -->
+<div id="lobby" class="screen active">
+  <div style="align-self:stretch;display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.5rem;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(240,192,64,.08)">
+    <div style="font-family:'Cinzel Decorative',serif;font-size:.82rem;background:linear-gradient(135deg,#f0c040,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">♠ Royal Casino ♥</div>
+    <div style="font-size:.82rem;color:var(--gold)">💰 <span id="lobby-bal">$5,000</span></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:2.5rem 1.5rem">
+    <div style="text-align:center"><span class="lobby-crest">♠</span><div class="lobby-title">Royal Casino</div><div class="lobby-tagline">Where Fortunes Are Made</div></div>
+    <div class="balance-pill">
+      <div><div class="bal-label">Balance</div><div class="bal-amount" id="bal-display">$5,000</div></div>
+      <div class="bal-divider"></div>
+      <div><div class="bal-label">Session</div><div class="bal-amount" id="session-display">+$0</div></div>
+    </div>
+    <div class="game-tiles">
+      <div class="gtile" onclick="showScreen('blackjack')"><div class="gtile-glow" style="background:#e74c3c"></div><span class="gtile-icon">🃏</span><div class="gtile-name">Blackjack</div><div class="gtile-desc">Beat the dealer</div><div class="gtile-badge">Classic</div></div>
+      <div class="gtile" onclick="showScreen('rtb')"><div class="gtile-glow" style="background:#f39c12"></div><span class="gtile-icon">🚌</span><div class="gtile-name">Ride the Bus</div><div class="gtile-desc">Up to 16× your bet</div><div class="gtile-badge">High Risk</div></div>
+      <div class="gtile" onclick="showScreen('slots')"><div class="gtile-glow" style="background:#8e44ad"></div><span class="gtile-icon">🎰</span><div class="gtile-name">Slot Machine</div><div class="gtile-desc">Match 3 to win</div><div class="gtile-badge">Luck</div></div>
+      <div class="gtile" onclick="showScreen('mp-select')"><div class="gtile-glow" style="background:#27ae60"></div><span class="gtile-icon">👥</span><div class="gtile-name">Multiplayer</div><div class="gtile-desc">Local or Online</div><div class="gtile-badge">Social</div></div>
+    </div>
+    <div id="refill-wrap" style="display:none"><button class="refill-btn" onclick="refillChips()">🎁 Refill — $5,000 Chips</button></div>
+    <div class="lobby-disclaimer">FOR ENTERTAINMENT PURPOSES ONLY · NO REAL MONEY INVOLVED</div>
+  </div>
+</div>
+
+<!-- MULTIPLAYER MODE SELECT -->
+<div id="mp-select" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="showScreen('lobby')">♠ Royal Casino</div>
+    <div class="topbar-back" onclick="showScreen('lobby')">← Lobby</div>
+  </div>
+  <div class="game-body" style="align-items:center;justify-content:center;">
+    <div style="text-align:center;margin-bottom:.5rem">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);margin-bottom:.4rem">Multiplayer</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(248,240,220,.4);font-size:.95rem">Choose your mode</div>
+    </div>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="showScreen('multiplayer')">
+        <div class="mode-card-icon">🤝</div>
+        <div class="mode-card-name">Local</div>
+        <div class="mode-card-desc">Pass the device between players</div>
+      </div>
+      <div class="mode-card" onclick="showScreen('online-select')">
+        <div class="mode-card-icon">🌐</div>
+        <div class="mode-card-name">Online</div>
+        <div class="mode-card-desc">Play with friends over the internet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONLINE MODE SELECT (create/join) -->
+<div id="online-select" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="showScreen('lobby')">♠ Royal Casino</div>
+    <div class="topbar-back" onclick="showScreen('mp-select')">← Back</div>
+  </div>
+  <div class="game-body" style="align-items:center;justify-content:center;gap:1.5rem">
+    <div style="text-align:center">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);margin-bottom:.4rem">Online Multiplayer</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(248,240,220,.4);font-size:.95rem">Create a room or join one with a code</div>
+    </div>
+    <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:1rem;">
+      <!-- Your name -->
+      <div>
+        <div class="section-head" style="margin-bottom:.6rem">Your Name</div>
+        <input class="mp-input" id="online-name" placeholder="Enter your name…" maxlength="20" style="width:100%">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="onlineCreate()">🏠 Create Room</button>
+        <button class="btn btn-blue" onclick="showJoinPanel()">🚪 Join Room</button>
+      </div>
+      <div id="join-panel" style="display:none;flex-direction:column;gap:.8rem">
+        <div class="section-head" style="margin-bottom:.4rem">Room Code</div>
+        <input class="mp-input" id="join-code-input" placeholder="Enter 4-letter code…" maxlength="4" style="width:100%;text-transform:uppercase;font-size:1.4rem;text-align:center;letter-spacing:.3em" oninput="this.value=this.value.toUpperCase()">
+        <button class="btn btn-green" onclick="onlineJoin()">Join Game</button>
+      </div>
+      <div id="online-status" style="text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(240,192,64,.5);font-size:.9rem;min-height:1.4rem"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ONLINE ROOM LOBBY -->
+<div id="online-lobby" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">♠ Royal Casino</div>
+    <div class="topbar-back" onclick="leaveOnlineRoom()">✕ Leave</div>
+  </div>
+  <div class="game-body" style="align-items:center;gap:1.5rem">
+    <div style="text-align:center">
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(240,192,64,.5);font-size:.85rem;letter-spacing:.15em;margin-bottom:.5rem">ROOM CODE</div>
+      <div class="room-code-display" id="room-code-display">----</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(248,240,220,.35);font-size:.8rem;margin-top:.6rem">Share this code with your friends</div>
+    </div>
+    <div style="width:100%;max-width:420px">
+      <div class="section-head" style="margin-bottom:.8rem">Players <span id="online-player-count" style="color:var(--gold)"></span></div>
+      <div id="online-player-list" style="display:flex;flex-direction:column;gap:.5rem"></div>
+    </div>
+    <div id="online-game-select" style="display:none;width:100%;max-width:420px;flex-direction:column;gap:.8rem">
+      <div class="section-head" style="margin-bottom:.4rem">Choose Game</div>
+      <div class="btn-row">
+        <button class="btn btn-gold"  onclick="onlineStartGame('blackjack')">♠ Blackjack</button>
+        <button class="btn btn-blue"  onclick="onlineStartGame('slots')">🎰 Slots</button>
+        <button class="btn btn-ghost" onclick="onlineStartGame('rtb')">🚌 Ride the Bus</button>
+      </div>
+    </div>
+    <div id="online-waiting-msg" style="text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(248,240,220,.4);font-size:.95rem">
+      <span class="waiting-spinner"></span>Waiting for host to start the game…
+    </div>
+  </div>
+</div>
+
+<!-- BLACKJACK -->
+<div id="blackjack" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="exitToLobby()">♠ Royal Casino</div>
+    <div class="topbar-bal">💰 <span class="live-bal">$5,000</span></div>
+    <div class="topbar-back" onclick="exitToLobby()">← Lobby</div>
+  </div>
+  <div id="bj-turn-banner" class="turn-banner" style="display:none">
+    <div class="turn-dot"></div>
+    <div class="turn-avatar" id="bj-turn-avatar"></div>
+    <div><span class="turn-name" id="bj-turn-name"></span>&nbsp;<span class="turn-bal" id="bj-turn-bal"></span></div>
+  </div>
+  <div class="game-body">
+    <div class="stats-strip">
+      <div class="stat-box"><div class="stat-v live-bal">$5,000</div><div class="stat-l">Balance</div></div>
+      <div class="stat-box"><div class="stat-v green" id="bj-wins">0</div><div class="stat-l">Wins</div></div>
+      <div class="stat-box"><div class="stat-v red-c" id="bj-losses">0</div><div class="stat-l">Losses</div></div>
+      <div class="stat-box"><div class="stat-v" id="bj-pushes">0</div><div class="stat-l">Pushes</div></div>
+      <div class="stat-box" id="streak-box" style="display:none"><div class="stat-v" style="color:#f39c12" id="bj-streak">0</div><div class="stat-l">Streak 🔥</div></div>
+    </div>
+    <div class="felt-zone"><div class="zone-label">— Dealer —</div><div class="hand-row" id="dealer-hand"></div></div>
+    <div class="felt-zone"><div class="zone-label" id="bj-player-label">— Your Hand —</div><div class="hand-row" id="player-hand"></div></div>
+    <div id="bj-bet-panel" class="bet-panel">
+      <div><div class="bet-label">Current Bet</div><div class="bet-amount" id="bj-bet-display">$0</div></div>
+      <div class="chip-rack" id="bj-chips"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="clearBet('bj')">Clear</button>
+        <button class="btn btn-gold" id="bj-deal-btn" onclick="bjDeal()" disabled>Deal Cards</button>
+      </div>
+    </div>
+    <div id="bj-actions" class="btn-row" style="display:none;justify-content:center">
+      <button class="btn btn-blue" onclick="bjHit()">Hit</button>
+      <button class="btn btn-red" onclick="bjStand()">Stand</button>
+      <button class="btn btn-gold" id="bj-double-btn" onclick="bjDouble()">Double Down</button>
+    </div>
+    <div id="bj-dealer-msg" style="display:none;text-align:center;color:rgba(240,192,64,.5);font-style:italic;padding:.5rem;font-family:'Cormorant Garamond',serif;font-size:1rem">Dealer is playing…</div>
+    <!-- Online: other players' hands -->
+    <div id="bj-online-others" style="display:none;flex-direction:column;gap:.8rem"></div>
+  </div>
+</div>
+
+<!-- RIDE THE BUS -->
+<div id="rtb" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="exitToLobby()">♠ Royal Casino</div>
+    <div class="topbar-bal">💰 <span class="live-bal">$5,000</span></div>
+    <div class="topbar-back" onclick="exitToLobby()">← Lobby</div>
+  </div>
+  <div id="rtb-turn-banner" class="turn-banner" style="display:none">
+    <div class="turn-dot"></div>
+    <div class="turn-avatar" id="rtb-turn-avatar"></div>
+    <div><span class="turn-name" id="rtb-turn-name"></span>&nbsp;<span class="turn-bal" id="rtb-turn-bal"></span></div>
+  </div>
+  <div class="game-body">
+    <div class="stats-strip">
+      <div class="stat-box"><div class="stat-v live-bal">$5,000</div><div class="stat-l">Balance</div></div>
+      <div class="stat-box"><div class="stat-v" style="color:#a29bfe" id="rtb-mult">1×</div><div class="stat-l">Multiplier</div></div>
+      <div class="stat-box"><div class="stat-v" style="color:#74b9ff" id="rtb-stage">0/4</div><div class="stat-l">Stage</div></div>
+      <div class="stat-box"><div class="stat-v" style="color:var(--neon)" id="rtb-potential">$0</div><div class="stat-l">To Win</div></div>
+    </div>
+    <div class="text-center" style="padding:.3rem 0" id="rtb-pips"><span class="pip active"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+    <div class="felt-zone"><div class="zone-label">— Cards on the Bus —</div><div class="hand-row" id="rtb-cards"><span style="color:rgba(240,192,64,.3);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem">Cards appear here as you guess…</span></div></div>
+    <div id="rtb-bet-panel" class="bet-panel">
+      <div class="rtb-question">🚌 Guess 4 cards correctly in a row. Each right answer doubles your multiplier — up to <strong style="color:var(--gold)">16×</strong> your bet!</div>
+      <div><div class="bet-label">Your Bet</div><div class="bet-amount" id="rtb-bet-display">$0</div></div>
+      <div class="chip-rack" id="rtb-chips"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="clearBet('rtb')">Clear</button>
+        <button class="btn btn-gold" id="rtb-start-btn" onclick="rtbStart()" disabled>🚌 Ride!</button>
+      </div>
+    </div>
+    <div id="rtb-play-panel" style="display:none;flex-direction:column;gap:.8rem">
+      <div class="rtb-question" id="rtb-question-text"></div>
+      <div class="btn-row" id="rtb-options"></div>
+      <div class="btn-row" id="rtb-cashout-wrap" style="justify-content:center;display:none">
+        <button class="btn btn-red" onclick="rtbCashOut()">💰 Cash Out <span id="rtb-cashout-amt">$0</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLOTS -->
+<div id="slots" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="exitToLobby()">♠ Royal Casino</div>
+    <div class="topbar-bal">💰 <span class="live-bal">$5,000</span></div>
+    <div class="topbar-back" onclick="exitToLobby()">← Lobby</div>
+  </div>
+  <div id="slot-turn-banner" class="turn-banner" style="display:none">
+    <div class="turn-dot"></div>
+    <div class="turn-avatar" id="slot-turn-avatar"></div>
+    <div><span class="turn-name" id="slot-turn-name"></span>&nbsp;<span class="turn-bal" id="slot-turn-bal"></span></div>
+  </div>
+  <div class="game-body">
+    <div class="stats-strip">
+      <div class="stat-box"><div class="stat-v live-bal">$5,000</div><div class="stat-l">Balance</div></div>
+      <div class="stat-box"><div class="stat-v" id="slot-spins">0</div><div class="stat-l">Spins</div></div>
+      <div class="stat-box"><div class="stat-v" id="slot-bet-stat">$0</div><div class="stat-l">Bet</div></div>
+    </div>
+    <div class="felt-zone text-center">
+      <div class="zone-label">— Slot Machine —</div>
+      <div class="slot-machine">
+        <div class="reel-wrap"><div class="reel" id="reel-0">🎰</div><div class="reel-label">Reel 1</div></div>
+        <div class="reel-wrap"><div class="reel" id="reel-1">🎰</div><div class="reel-label">Reel 2</div></div>
+        <div class="reel-wrap"><div class="reel" id="reel-2">🎰</div><div class="reel-label">Reel 3</div></div>
+      </div>
+      <div class="slot-result" id="slot-result"></div>
+    </div>
+    <div class="bet-panel">
+      <div><div class="bet-label">Bet Per Spin</div><div class="bet-amount" id="slot-bet-display">$0</div></div>
+      <div class="chip-rack" id="slot-chips"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="slot-clear-btn" onclick="clearBet('slot')">Clear</button>
+        <button class="btn btn-gold" id="slot-spin-btn" onclick="slotSpin()" disabled>🎰 Spin!</button>
+      </div>
+    </div>
+    <div id="slot-end-turn-wrap" style="display:none;justify-content:center" class="btn-row">
+      <button class="btn btn-gold" onclick="slotEndTurn()">✓ End Turn</button>
+    </div>
+    <div><div class="section-head">Payout Table</div><div class="paytable" id="paytable"></div></div>
+  </div>
+</div>
+
+<!-- LOCAL MULTIPLAYER SETUP -->
+<div id="multiplayer" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="showScreen('lobby')">♠ Royal Casino</div>
+    <div class="topbar-back" onclick="showScreen('mp-select')">← Back</div>
+  </div>
+  <div class="game-body">
+    <div class="section-head">Players at the Table</div>
+    <div class="player-list" id="mp-player-list"></div>
+    <div id="mp-add-row" class="mp-input-row">
+      <input class="mp-input" id="mp-name-input" placeholder="Enter player name…" maxlength="20" onkeydown="if(event.key==='Enter')mpAddPlayer()">
+      <button class="btn btn-gold" onclick="mpAddPlayer()">Add</button>
+    </div>
+    <div class="mp-info">Pass the device between players each turn. Every player starts with <strong style="color:var(--gold)">$5,000</strong>. Last one with chips wins!</div>
+    <div class="btn-row">
+      <button class="btn btn-gold"  onclick="mpStartGame('blackjack')">♠ Blackjack</button>
+      <button class="btn btn-blue"  onclick="mpStartGame('slots')">🎰 Slots</button>
+      <button class="btn btn-ghost" onclick="mpStartGame('rtb')">🚌 Ride the Bus</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="result-overlay" style="display:none">
+  <div class="result-card">
+    <div class="result-title" id="result-title">YOU WIN!</div>
+    <div class="result-amount" id="result-amount">+$500</div>
+    <div class="result-bal" id="result-bal">Balance: $5,000</div>
+    <div class="result-next" id="result-next"></div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn btn-gold" id="result-play-again">Play Again</button>
+      <button class="btn btn-ghost" onclick="exitToLobby()">Lobby</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASS SCREEN (local MP) -->
+<div id="pass-screen">
+  <div class="pass-avatar" id="pass-avatar"></div>
+  <div class="pass-title" id="pass-title">Pass to next player!</div>
+  <div class="pass-sub" id="pass-sub"></div>
+  <div class="pass-bal" id="pass-bal"></div>
+  <button class="btn btn-gold" style="font-size:1rem;padding:.9rem 2.5rem" onclick="passReady()">👍 Ready — I'm <span id="pass-ready-name"></span></button>
+</div>
+
+<!-- WINNER SCREEN -->
+<div id="winner-screen">
+  <div class="winner-crown">👑</div>
+  <div class="winner-title">Champion!</div>
+  <div class="winner-name" id="winner-name"></div>
+  <div class="lb-wrap" id="winner-lb"></div>
+  <div class="btn-row">
+    <button class="btn btn-gold" onclick="mpResetGame()">🔄 Play Again</button>
+    <button class="btn btn-ghost" onclick="mpQuit()">Lobby</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, off, remove, push, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBrwG5-IdgQtRRNI7lVULCmqSZaQeGSYKk",
+  authDomain: "soms-casino.firebaseapp.com",
+  databaseURL: "https://soms-casino-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "soms-casino",
+  storageBucket: "soms-casino.firebasestorage.app",
+  messagingSenderId: "849797722119",
+  appId: "1:849797722119:web:64bea0d55818c8760cfaa2"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── Expose Firebase helpers to window so the rest of the script can use them
+window._fb = { ref, set, get, update, onValue, off, remove, push, serverTimestamp, db };
+window._fbReady = true;
+window.dispatchEvent(new Event('fbready'));
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const SUITS     = ['♠','♥','♦','♣'];
+const RANKS     = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const RED_SUITS = ['♥','♦'];
+const CHIP_VALUES = [5,25,100,500,1000];
+const CHIP_CLS    = ['chip-5','chip-25','chip-100','chip-500','chip-1000'];
+const SLOT_SYM    = ['🍒','🍋','🍊','⭐','💎','7️⃣','🎰'];
+const SLOT_PAYS   = {'💎💎💎':50,'7️⃣7️⃣7️⃣':25,'⭐⭐⭐':10,'🍒🍒🍒':5,'🍋🍋🍋':4,'🍊🍊🍊':3};
+const MP_AV  = ['😎','🤠','👑','🎭','🦁','🐉'];
+const MP_COL = ['#e74c3c','#2980b9','#27ae60','#8e44ad','#e67e22','#16a085'];
+const RTB_Q  = [
+  {q:'Red or Black?',              opts:['🔴 Red','⚫ Black']},
+  {q:'Higher or Lower than last?', opts:['⬆ Higher','⬇ Lower']},
+  {q:'Inside or Outside the two?', opts:['↔ Inside','↕ Outside']},
+  {q:'Which suit will it be?',     opts:['♠ Spades','♥ Hearts','♦ Diamonds','♣ Clubs']},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// SOLO STATE
+// ═══════════════════════════════════════════════════════════════
+let balance=5000, sessionStart=5000;
+let currentBet={bj:0,rtb:0,slot:0};
+let bjDeck=[],bjPlayerHand=[],bjDealerHand=[],bjPhase='bet';
+let bjWins=0,bjLosses=0,bjPushes=0,bjStreak=0;
+let rtbDeck=[],rtbCards=[],rtbStage=0,rtbMult=1,rtbPhase='bet';
+let slotReels=['🎰','🎰','🎰'],slotSpinning=false,slotSpins=0;
+
+// ═══════════════════════════════════════════════════════════════
+// LOCAL MP STATE
+// ═══════════════════════════════════════════════════════════════
+let mpPlayers=[{name:'You',avatar:'😎',color:'#e74c3c',balance:5000}];
+let mpMode=false, mpTurn=0, mpGame='';
+
+// ═══════════════════════════════════════════════════════════════
+// ONLINE MP STATE
+// ═══════════════════════════════════════════════════════════════
+let onlineMode   = false;
+let roomCode     = '';
+let myPlayerId   = '';
+let myPlayerName = '';
+let isHost       = false;
+let onlinePlayers = {};      // { playerId: { name, balance, avatar, color } }
+let onlineTurnId  = '';      // whose turn it is (playerId)
+let roomListener  = null;    // firebase listener unsubscribe
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function makeDeck(){const d=[];for(const s of SUITS)for(const r of RANKS)d.push({s,r,up:true});return d;}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function cardVal(c){if('JQK'.includes(c.r))return 10;if(c.r==='A')return 11;return+c.r;}
+function handTotal(h){let t=0,a=0;for(const c of h){t+=cardVal(c);if(c.r==='A')a++;}while(t>21&&a>0){t-=10;a--;}return t;}
+function cardHTML(c,delay=0){
+  if(!c.up)return`<div class="card face-down" style="animation-delay:${delay}s"></div>`;
+  const cl=RED_SUITS.includes(c.s)?'red':'black';
+  return`<div class="card face-up ${cl}" style="animation-delay:${delay}s"><div class="card-corner tl"><span>${c.r}</span><span>${c.s}</span></div><div class="c-suit">${c.s}</div><div class="c-rank">${c.r}</div><div class="card-corner br"><span>${c.r}</span><span>${c.s}</span></div></div>`;
+}
+function chipsHTML(ctx){
+  return CHIP_VALUES.map((v,i)=>`<div class="chip ${CHIP_CLS[i]}" style="animation-delay:${i*.04}s" onclick="addBet('${ctx}',${v})">${v>=1000?'1K':v}</div>`).join('');
+}
+function randId(len=8){return Math.random().toString(36).substr(2,len);}
+function randCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ';let c='';for(let i=0;i<4;i++)c+=chars[0|Math.random()*chars.length];return c;}
+
+// ═══════════════════════════════════════════════════════════════
+// BALANCE
+// ═══════════════════════════════════════════════════════════════
+function getBal(){
+  if(onlineMode) return onlinePlayers[myPlayerId]?.balance??5000;
+  if(mpMode) return mpPlayers[mpTurn].balance;
+  return balance;
+}
+function applyDelta(d){
+  if(onlineMode){
+    const newBal=Math.max(0,(onlinePlayers[myPlayerId]?.balance??5000)+d);
+    onlinePlayers[myPlayerId].balance=newBal;
+    fbUpdatePlayer(myPlayerId,{balance:newBal});
+  } else if(mpMode){
+    mpPlayers[mpTurn].balance=Math.max(0,mpPlayers[mpTurn].balance+d);
+  } else {
+    balance=Math.max(0,balance+d);
+  }
+  refreshBal();
+  if(!onlineMode) saveState();
+}
+function updateBalance(d){applyDelta(d);}
+function refreshBal(){
+  const b=getBal();
+  const fmt='$'+b.toLocaleString();
+  document.querySelectorAll('.live-bal').forEach(el=>el.textContent=fmt);
+  document.getElementById('bal-display').textContent=fmt;
+  document.getElementById('lobby-bal').textContent=fmt;
+  const diff=b-sessionStart;
+  const s=document.getElementById('session-display');
+  s.textContent=(diff>=0?'+':'')+`$${Math.abs(diff).toLocaleString()}`;
+  s.style.color=diff>=0?'var(--neon)':'var(--red)';
+  document.getElementById('refill-wrap').style.display=(!mpMode&&!onlineMode&&b<200)?'block':'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BETTING
+// ═══════════════════════════════════════════════════════════════
+function addBet(ctx,v){currentBet[ctx]=Math.min(currentBet[ctx]+v,getBal());refreshBetDsp(ctx);}
+function clearBet(ctx){currentBet[ctx]=0;refreshBetDsp(ctx);}
+function refreshBetDsp(ctx){
+  const b=currentBet[ctx],bal=getBal();
+  if(ctx==='bj'){document.getElementById('bj-bet-display').textContent='$'+b;document.getElementById('bj-deal-btn').disabled=b<=0||b>bal;}
+  else if(ctx==='rtb'){document.getElementById('rtb-bet-display').textContent='$'+b;document.getElementById('rtb-start-btn').disabled=b<=0||b>bal;document.getElementById('rtb-potential').textContent='$'+(b*rtbMult);}
+  else if(ctx==='slot'){document.getElementById('slot-bet-display').textContent='$'+b;document.getElementById('slot-bet-stat').textContent='$'+b;document.getElementById('slot-spin-btn').disabled=b<=0||b>bal||slotSpinning;}
+}
+function refillChips(){balance=5000;sessionStart=5000;refreshBal();saveState();toast('💰 $5,000 chips refilled!');}
+
+// ═══════════════════════════════════════════════════════════════
+// SCREEN NAV
+// ═══════════════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  refreshBal();
+  if(id==='blackjack')  initBJ();
+  if(id==='rtb')        initRTB();
+  if(id==='slots')      initSlots();
+  if(id==='multiplayer')renderMPScreen();
+}
+function exitToLobby(){
+  if(onlineMode) leaveOnlineRoom();
+  mpMode=false;mpTurn=0;onlineMode=false;
+  showScreen('lobby');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TURN BANNER
+// ═══════════════════════════════════════════════════════════════
+function updateBanner(game){
+  const el=document.getElementById(game+'-turn-banner');
+  let p=null;
+  if(onlineMode){
+    p=onlinePlayers[onlineTurnId];
+    if(!p||Object.keys(onlinePlayers).length<=1){el.style.display='none';return;}
+  } else if(mpMode){
+    if(mpPlayers.length<=1){el.style.display='none';return;}
+    p=mpPlayers[mpTurn];
+  } else {el.style.display='none';return;}
+  el.style.display='flex';
+  const av=document.getElementById(game+'-turn-avatar');
+  av.textContent=p.avatar;av.style.background=p.color;
+  const isMe=onlineMode?onlineTurnId===myPlayerId:true;
+  document.getElementById(game+'-turn-name').textContent=isMe?'Your turn':p.name+"'s turn";
+  document.getElementById(game+'-turn-bal').textContent='$'+p.balance.toLocaleString();
+  if(game==='bj') document.getElementById('bj-player-label').textContent=isMe?'— Your Hand —':`— ${p.name}'s Hand —`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST / CONFETTI
+// ═══════════════════════════════════════════════════════════════
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
+function confetti(){
+  const l=document.createElement('div');l.className='confetti-layer';document.body.appendChild(l);
+  const cs=['#f0c040','#e74c3c','#2980b9','#27ae60','#8e44ad','#fff','#00ffaa'];
+  for(let i=0;i<80;i++){const p=document.createElement('div');p.className='confetto';const sz=7+Math.random()*9;p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cs[0|Math.random()*cs.length]};animation-duration:${1.8+Math.random()*2.2}s;animation-delay:${Math.random()*.8}s;transform:rotate(${Math.random()*360}deg)`;l.appendChild(p);}
+  setTimeout(()=>l.remove(),4000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESULT OVERLAY
+// ═══════════════════════════════════════════════════════════════
+function showResult(type,amount,onNext){
+  const cfgs={BLACKJACK:{t:'🃏 Blackjack!',c:'win'},WIN:{t:'🎉 You Win!',c:'win'},LOSE:{t:'😔 You Lose',c:'lose'},BUST:{t:'💥 Bust!',c:'lose'},PUSH:{t:'🤝 Push',c:'push'},CASHOUT:{t:'💰 Cashed Out!',c:'win'},WRONG:{t:'💥 Wrong!',c:'lose'}};
+  const cfg=cfgs[type]||cfgs.WIN;
+  document.getElementById('result-title').textContent=cfg.t;
+  document.getElementById('result-title').className='result-title '+cfg.c;
+  document.getElementById('result-amount').textContent=amount>=0?`+$${amount.toLocaleString()}`:`-$${Math.abs(amount).toLocaleString()}`;
+  document.getElementById('result-amount').style.color=amount>=0?'var(--gold)':'var(--red)';
+  document.getElementById('result-bal').textContent='Balance: $'+getBal().toLocaleString();
+  const nextEl=document.getElementById('result-next');
+  if(onlineMode){
+    // find next player
+    const ids=Object.keys(onlinePlayers).filter(id=>onlinePlayers[id].balance>0);
+    if(ids.length>1){
+      const myIdx=ids.indexOf(myPlayerId);
+      const nextId=ids[(myIdx+1)%ids.length];
+      nextEl.textContent=`Next up: ${onlinePlayers[nextId]?.avatar||''} ${onlinePlayers[nextId]?.name||''}`;
+    } else nextEl.textContent='';
+  } else if(mpMode&&mpPlayers.length>1){
+    let ni=mpTurn;do{ni=(ni+1)%mpPlayers.length;}while(mpPlayers[ni].balance<=0);
+    nextEl.textContent=`Next up: ${mpPlayers[ni].avatar} ${mpPlayers[ni].name}`;
+  } else nextEl.textContent='';
+  document.getElementById('result-overlay').style.display='flex';
+  document.getElementById('result-play-again').onclick=()=>{document.getElementById('result-overlay').style.display='none';onNext();};
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOCAL MULTIPLAYER
+// ═══════════════════════════════════════════════════════════════
+function mpStartGame(game){
+  if(mpPlayers.length<2){toast('Add at least 2 players first!');return;}
+  mpMode=true;mpGame=game;mpTurn=0;showScreen(game);
+}
+function advanceTurn(onResume){
+  const alive=mpPlayers.filter(p=>p.balance>0);
+  if(alive.length<=1){showWinner(alive[0]||mpPlayers.reduce((a,b)=>a.balance>b.balance?a:b));return;}
+  let ni=mpTurn;do{ni=(ni+1)%mpPlayers.length;}while(mpPlayers[ni].balance<=0);
+  mpTurn=ni;showPassScreen(onResume);
+}
+function showPassScreen(onResume){
+  const p=mpPlayers[mpTurn];
+  document.getElementById('pass-avatar').textContent=p.avatar;
+  document.getElementById('pass-avatar').style.background=p.color;
+  document.getElementById('pass-title').textContent=`Pass to ${p.name}!`;
+  document.getElementById('pass-sub').textContent=`Hand the device to ${p.name} when they're ready.`;
+  document.getElementById('pass-bal').textContent=`${p.name}'s balance: $${p.balance.toLocaleString()}`;
+  document.getElementById('pass-ready-name').textContent=p.name;
+  const ps=document.getElementById('pass-screen');ps.classList.add('active');ps._resume=onResume;
+}
+function passReady(){document.getElementById('pass-screen').classList.remove('active');document.getElementById('pass-screen')._resume?.();}
+function showWinner(winner){
+  confetti();confetti();
+  document.getElementById('winner-name').textContent=winner.avatar+' '+winner.name;
+  const sorted=[...mpPlayers].sort((a,b)=>b.balance-a.balance);
+  document.getElementById('winner-lb').innerHTML=sorted.map((p,i)=>`<div class="lb-row"><span class="lb-pos">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</span><span class="lb-name">${p.avatar} ${p.name}</span><span class="lb-bal">$${p.balance.toLocaleString()}</span></div>`).join('');
+  document.getElementById('winner-screen').classList.add('active');
+}
+function mpResetGame(){document.getElementById('winner-screen').classList.remove('active');mpPlayers.forEach(p=>p.balance=5000);mpMode=true;mpTurn=0;showScreen(mpGame);}
+function mpQuit(){document.getElementById('winner-screen').classList.remove('active');mpMode=false;showScreen('lobby');}
+function renderMPScreen(){
+  document.getElementById('mp-player-list').innerHTML=mpPlayers.map((p,i)=>`
+    <div class="player-tag${i===0?' is-host':''}">
+      <div style="display:flex;align-items:center;gap:.7rem"><div class="player-avatar" style="background:${p.color}">${p.avatar}</div><span style="font-size:.88rem">${p.name}</span></div>
+      <span style="font-size:.8rem;color:var(--gold)">$${p.balance.toLocaleString()}</span>
+      ${i>0?`<button class="btn btn-ghost" style="padding:.25rem .7rem;font-size:.7rem" onclick="mpRemove(${i})">Remove</button>`:'<span style="font-size:.65rem;color:rgba(240,192,64,.3)">Host</span>'}
+    </div>`).join('');
+  document.getElementById('mp-add-row').style.display=mpPlayers.length<6?'flex':'none';
+}
+function mpAddPlayer(){
+  const inp=document.getElementById('mp-name-input');const name=inp.value.trim();
+  if(!name||mpPlayers.length>=6)return;
+  const i=mpPlayers.length;mpPlayers.push({name,avatar:MP_AV[i]||'🎲',color:MP_COL[i]||'#aaa',balance:5000});
+  inp.value='';renderMPScreen();saveState();toast(`${name} added!`);
+}
+function mpRemove(i){mpPlayers.splice(i,1);renderMPScreen();saveState();toast('Player removed.');}
+
+// ═══════════════════════════════════════════════════════════════
+// ONLINE MULTIPLAYER — FIREBASE
+// ═══════════════════════════════════════════════════════════════
+function waitForFb(cb){
+  if(window._fbReady)cb();
+  else window.addEventListener('fbready',cb,{once:true});
+}
+
+function fbRef(path){return window._fb.ref(window._fb.db,path);}
+function fbSet(path,val){return window._fb.set(fbRef(path),val);}
+function fbUpdate(path,val){return window._fb.update(fbRef(path),val);}
+function fbGet(path){return window._fb.get(fbRef(path));}
+function fbOn(path,cb){
+  const r=fbRef(path);
+  window._fb.onValue(r,snap=>cb(snap.val()));
+  return ()=>window._fb.off(r);
+}
+function fbUpdatePlayer(pid,data){
+  if(!roomCode)return;
+  return fbUpdate(`rooms/${roomCode}/players/${pid}`,data);
+}
+
+function showJoinPanel(){
+  document.getElementById('join-panel').style.display='flex';
+}
+
+async function onlineCreate(){
+  const name=document.getElementById('online-name').value.trim();
+  if(!name){toast('Enter your name first!');return;}
+  waitForFb(async()=>{
+    document.getElementById('online-status').innerHTML='<span class="waiting-spinner"></span>Creating room…';
+    roomCode=randCode();
+    myPlayerId=randId();
+    myPlayerName=name;
+    isHost=true;
+    const idx=0;
+    const me={name,avatar:MP_AV[idx],color:MP_COL[idx],balance:5000,isHost:true};
+    onlinePlayers={[myPlayerId]:me};
+    try {
+      await fbSet(`rooms/${roomCode}`,{
+        host:myPlayerId,
+        game:'lobby',
+        turn:'',
+        players:{[myPlayerId]:me},
+        createdAt:Date.now()
+      });
+      document.getElementById('online-status').textContent='';
+      enterOnlineRoom();
+    } catch(e){
+      document.getElementById('online-status').textContent='Error creating room. Check your connection.';
+      console.error(e);
+    }
+  });
+}
+
+async function onlineJoin(){
+  const name=document.getElementById('online-name').value.trim();
+  const code=document.getElementById('join-code-input').value.trim().toUpperCase();
+  if(!name){toast('Enter your name first!');return;}
+  if(code.length!==4){toast('Enter a 4-letter room code!');return;}
+  waitForFb(async()=>{
+    document.getElementById('online-status').innerHTML='<span class="waiting-spinner"></span>Joining room…';
+    try {
+      const snap=await fbGet(`rooms/${code}`);
+      if(!snap.exists()){document.getElementById('online-status').textContent='Room not found. Check the code.';return;}
+      const room=snap.val();
+      const existingPlayers=room.players||{};
+      if(Object.keys(existingPlayers).length>=6){document.getElementById('online-status').textContent='Room is full (max 6 players).';return;}
+      roomCode=code;
+      myPlayerId=randId();
+      myPlayerName=name;
+      isHost=false;
+      const idx=Object.keys(existingPlayers).length;
+      const me={name,avatar:MP_AV[idx]||'🎲',color:MP_COL[idx]||'#aaa',balance:5000,isHost:false};
+      onlinePlayers={...existingPlayers,[myPlayerId]:me};
+      await fbUpdate(`rooms/${code}/players/${myPlayerId}`,me);
+      document.getElementById('online-status').textContent='';
+      enterOnlineRoom();
+    } catch(e){
+      document.getElementById('online-status').textContent='Error joining room. Try again.';
+      console.error(e);
+    }
+  });
+}
+
+function enterOnlineRoom(){
+  showScreen('online-lobby');
+  document.getElementById('room-code-display').textContent=roomCode;
+  // Listen for room changes
+  if(roomListener) roomListener();
+  roomListener=fbOn(`rooms/${roomCode}`,roomData=>{
+    if(!roomData){toast('Room closed.');leaveOnlineRoom();return;}
+    onlinePlayers=roomData.players||{};
+    onlineTurnId=roomData.turn||'';
+    renderOnlineLobby(roomData);
+    // If game started and we're on online-lobby screen, navigate to game
+    if(roomData.game&&roomData.game!=='lobby'){
+      const currentScreen=document.querySelector('.screen.active')?.id;
+      if(currentScreen==='online-lobby'){
+        onlineMode=true;
+        showScreen(roomData.game);
+      }
+      // If game is running, sync turn banner
+      if(onlineMode) updateBanner(roomData.game);
+      // If it's now my turn, re-init the game screen for input
+      if(onlineTurnId===myPlayerId&&onlineMode){
+        refreshBal();updateBanner(roomData.game);
+        enableOnlineInput(roomData.game);
+      } else if(onlineMode){
+        disableOnlineInput(roomData.game);
+      }
+    }
+  });
+}
+
+function renderOnlineLobby(roomData){
+  const players=roomData.players||{};
+  const ids=Object.keys(players);
+  document.getElementById('online-player-count').textContent=`(${ids.length}/6)`;
+  document.getElementById('online-player-list').innerHTML=ids.map(id=>{
+    const p=players[id];
+    const isMe=id===myPlayerId;
+    return`<div class="online-player-row${isMe?' is-you':''}">
+      <div style="background:${p.color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">${p.avatar}</div>
+      <span style="flex:1;font-size:.88rem">${p.name}${isMe?' <span style="color:var(--neon);font-size:.7rem">(you)</span>':''}</span>
+      <span style="font-size:.8rem;color:var(--gold)">$${p.balance.toLocaleString()}</span>
+      <div class="status-dot online"></div>
+    </div>`;
+  }).join('');
+  // Show game select only to host
+  const gs=document.getElementById('online-game-select');
+  const wm=document.getElementById('online-waiting-msg');
+  if(isHost&&ids.length>=2){gs.style.display='flex';wm.style.display='none';}
+  else if(isHost&&ids.length<2){gs.style.display='none';wm.style.display='block';wm.innerHTML='<span class="waiting-spinner"></span>Waiting for players to join…';}
+  else{gs.style.display='none';wm.style.display='block';wm.innerHTML='<span class="waiting-spinner"></span>Waiting for host to start the game…';}
+}
+
+async function onlineStartGame(game){
+  if(!isHost)return;
+  // Set first turn to host
+  const firstTurn=Object.keys(onlinePlayers)[0];
+  await fbUpdate(`rooms/${roomCode}`,{game,turn:firstTurn});
+  onlineMode=true;onlineTurnId=firstTurn;
+  showScreen(game);
+}
+
+function leaveOnlineRoom(){
+  if(roomListener){roomListener();roomListener=null;}
+  if(roomCode&&myPlayerId){
+    waitForFb(()=>{
+      window._fb.remove(fbRef(`rooms/${roomCode}/players/${myPlayerId}`)).catch(()=>{});
+      // If host leaves, remove room
+      if(isHost) window._fb.remove(fbRef(`rooms/${roomCode}`)).catch(()=>{});
+    });
+  }
+  onlineMode=false;roomCode='';myPlayerId='';isHost=false;onlinePlayers={};onlineTurnId='';
+  document.getElementById('online-status').textContent='';
+  document.getElementById('join-panel').style.display='none';
+}
+
+// Online: advance turn in Firebase
+async function onlineAdvanceTurn(onResume){
+  const ids=Object.keys(onlinePlayers).filter(id=>onlinePlayers[id].balance>0);
+  if(ids.length<=1){
+    // Game over
+    const winner=onlinePlayers[ids[0]]||Object.values(onlinePlayers).reduce((a,b)=>a.balance>b.balance?a:b);
+    showOnlineWinner(winner);return;
+  }
+  const myIdx=ids.indexOf(myPlayerId);
+  const nextId=ids[(myIdx+1)%ids.length];
+  await fbUpdate(`rooms/${roomCode}`,{turn:nextId});
+  onlineTurnId=nextId;
+  if(nextId===myPlayerId){
+    // It's back to me
+    onResume();
+  } else {
+    toast(`It's ${onlinePlayers[nextId]?.name}'s turn`);
+    disableOnlineInput(mpGame||'blackjack');
+  }
+}
+
+function showOnlineWinner(winner){
+  confetti();confetti();
+  document.getElementById('winner-name').textContent=(winner.avatar||'🏆')+' '+(winner.name||'Winner');
+  const sorted=Object.values(onlinePlayers).sort((a,b)=>b.balance-a.balance);
+  document.getElementById('winner-lb').innerHTML=sorted.map((p,i)=>`<div class="lb-row"><span class="lb-pos">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</span><span class="lb-name">${p.avatar} ${p.name}</span><span class="lb-bal">$${p.balance.toLocaleString()}</span></div>`).join('');
+  document.getElementById('winner-screen').classList.add('active');
+}
+
+function enableOnlineInput(game){
+  // Re-init the game screen for this player's turn
+  if(game==='blackjack')initBJ();
+  else if(game==='rtb')initRTB();
+  else if(game==='slots')initSlots();
+}
+function disableOnlineInput(game){
+  // Show waiting message, disable inputs
+  if(game==='blackjack'){
+    document.getElementById('bj-bet-panel').style.display='none';
+    document.getElementById('bj-actions').style.display='none';
+  } else if(game==='rtb'){
+    document.getElementById('rtb-bet-panel').style.display='none';
+    document.getElementById('rtb-play-panel').style.display='none';
+  } else if(game==='slots'){
+    document.getElementById('slot-spin-btn').disabled=true;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BLACKJACK
+// ═══════════════════════════════════════════════════════════════
+function initBJ(){
+  bjPhase='bet';bjPlayerHand=[];bjDealerHand=[];currentBet.bj=0;
+  document.getElementById('bj-chips').innerHTML=chipsHTML('bj');
+  refreshBetDsp('bj');renderBJHands();
+  document.getElementById('bj-bet-panel').style.display='flex';
+  document.getElementById('bj-actions').style.display='none';
+  document.getElementById('bj-dealer-msg').style.display='none';
+  updateBJStats();updateBanner('bj');refreshBal();
+  // Online: only show input if it's my turn
+  if(onlineMode&&onlineTurnId!==myPlayerId){
+    document.getElementById('bj-bet-panel').style.display='none';
+    const p=onlinePlayers[onlineTurnId];
+    toast(p?`Waiting for ${p.name} to play…`:'Waiting…');
+  }
+}
+function renderBJHands(){
+  const ph=document.getElementById('player-hand');const dh=document.getElementById('dealer-hand');
+  ph.innerHTML=bjPlayerHand.map((c,i)=>cardHTML(c,i*.08)).join('');
+  dh.innerHTML=bjDealerHand.map((c,i)=>cardHTML(c,i*.08)).join('');
+  if(bjPlayerHand.length){const pt=handTotal(bjPlayerHand);ph.innerHTML+=`<div class="hand-total${pt>21?' bust':pt===21?' bj':''}">${pt}</div>`;}
+  if(bjDealerHand.length){const dt=handTotal(bjDealerHand.filter(c=>c.up));dh.innerHTML+=`<div class="hand-total${dt>21?' bust':''}">${dt}</div>`;}
+}
+function updateBJStats(){
+  document.getElementById('bj-wins').textContent=bjWins;document.getElementById('bj-losses').textContent=bjLosses;document.getElementById('bj-pushes').textContent=bjPushes;
+  const sb=document.getElementById('streak-box');
+  if(bjStreak>1){sb.style.display='flex';document.getElementById('bj-streak').textContent=bjStreak;}else sb.style.display='none';
+}
+function bjDeal(){
+  if(currentBet.bj<=0||currentBet.bj>getBal())return;
+  if(bjDeck.length<30)bjDeck=shuffle([...makeDeck(),...makeDeck(),...makeDeck(),...makeDeck()]);
+  const draw=(up=true)=>({...bjDeck.shift(),up});
+  bjPlayerHand=[draw(),draw()];bjDealerHand=[draw(),draw(false)];bjPhase='play';
+  document.getElementById('bj-bet-panel').style.display='none';
+  document.getElementById('bj-actions').style.display='flex';
+  document.getElementById('bj-double-btn').disabled=currentBet.bj*2>getBal();
+  renderBJHands();if(handTotal(bjPlayerHand)===21)setTimeout(()=>bjEnd(false),400);
+}
+function bjHit(){if(bjPhase!=='play')return;bjPlayerHand.push({...bjDeck.shift(),up:true});renderBJHands();if(handTotal(bjPlayerHand)>21)bjEnd(true);}
+function bjStand(){
+  if(bjPhase!=='play')return;bjPhase='dealer';
+  bjDealerHand=bjDealerHand.map(c=>({...c,up:true}));
+  document.getElementById('bj-actions').style.display='none';document.getElementById('bj-dealer-msg').style.display='block';renderBJHands();
+  const play=()=>{if(handTotal(bjDealerHand)<17){bjDealerHand.push({...bjDeck.shift(),up:true});renderBJHands();setTimeout(play,650);}else bjEnd(false);};
+  setTimeout(play,450);
+}
+function bjDouble(){
+  if(bjPhase!=='play'||bjPlayerHand.length!==2)return;
+  if(currentBet.bj*2>getBal()){toast('Not enough chips!');return;}
+  currentBet.bj*=2;bjPlayerHand.push({...bjDeck.shift(),up:true});renderBJHands();
+  if(handTotal(bjPlayerHand)>21)bjEnd(true);else bjStand();
+}
+function bjEnd(bust){
+  document.getElementById('bj-actions').style.display='none';document.getElementById('bj-dealer-msg').style.display='none';
+  bjDealerHand=bjDealerHand.map(c=>({...c,up:true}));renderBJHands();
+  const bet=currentBet.bj,pt=handTotal(bjPlayerHand),dt=handTotal(bjDealerHand);
+  const isBJ=bjPlayerHand.length===2&&pt===21;
+  let type,payout=0;
+  if(bust){type='BUST';}else if(isBJ){type='BLACKJACK';payout=Math.floor(bet*2.5);}
+  else if(dt>21){type='WIN';payout=bet*2;}else if(pt>dt){type='WIN';payout=bet*2;}
+  else if(pt===dt){type='PUSH';payout=bet;}else{type='LOSE';}
+  const won=type==='WIN'||type==='BLACKJACK';
+  applyDelta(-bet+payout);
+  bjWins+=won?1:0;bjLosses+=(type==='LOSE'||type==='BUST')?1:0;bjPushes+=type==='PUSH'?1:0;bjStreak=won?bjStreak+1:0;
+  updateBJStats();if(won)confetti();
+  const resume=()=>{currentBet.bj=0;initBJ();};
+  if(onlineMode) showResult(type,payout-bet,()=>onlineAdvanceTurn(resume));
+  else if(mpMode) showResult(type,payout-bet,()=>advanceTurn(resume));
+  else showResult(type,payout-bet,resume);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RIDE THE BUS
+// ═══════════════════════════════════════════════════════════════
+function initRTB(){
+  rtbPhase='bet';rtbStage=0;rtbMult=1;rtbCards=[];rtbDeck=[];currentBet.rtb=0;
+  document.getElementById('rtb-chips').innerHTML=chipsHTML('rtb');refreshBetDsp('rtb');
+  document.getElementById('rtb-bet-panel').style.display='flex';document.getElementById('rtb-play-panel').style.display='none';
+  updateRTBStats();renderRTBCards();updateBanner('rtb');refreshBal();
+  if(onlineMode&&onlineTurnId!==myPlayerId){
+    document.getElementById('rtb-bet-panel').style.display='none';
+    const p=onlinePlayers[onlineTurnId];toast(p?`Waiting for ${p.name}…`:'Waiting…');
+  }
+}
+function updateRTBStats(){
+  document.getElementById('rtb-mult').textContent=rtbMult+'×';document.getElementById('rtb-stage').textContent=rtbStage+'/4';
+  document.getElementById('rtb-potential').textContent='$'+(currentBet.rtb*rtbMult);
+  document.getElementById('rtb-pips').innerHTML=[0,1,2,3].map(i=>`<span class="pip${i<rtbStage?' done':i===rtbStage?' active':''}"></span>`).join('');
+}
+function renderRTBCards(){
+  const el=document.getElementById('rtb-cards');
+  el.innerHTML=rtbCards.length?rtbCards.map(c=>cardHTML(c,0)).join(''):`<span style="color:rgba(240,192,64,.3);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem">Cards appear here as you guess…</span>`;
+}
+function rtbStart(){
+  if(currentBet.rtb<=0||currentBet.rtb>getBal())return;
+  rtbDeck=shuffle(makeDeck());rtbPhase='play';rtbStage=0;rtbMult=1;rtbCards=[];
+  document.getElementById('rtb-bet-panel').style.display='none';document.getElementById('rtb-play-panel').style.display='flex';
+  updateRTBStats();renderRTBQ();
+}
+function renderRTBQ(){
+  const q=RTB_Q[rtbStage];document.getElementById('rtb-question-text').textContent=q.q;
+  document.getElementById('rtb-options').innerHTML=q.opts.map((o,i)=>`<button class="btn btn-gold" onclick="rtbGuess(${i})">${o}</button>`).join('');
+  const cw=document.getElementById('rtb-cashout-wrap');
+  if(rtbStage>0){cw.style.display='flex';document.getElementById('rtb-cashout-amt').textContent='$'+Math.floor(currentBet.rtb*rtbMult);}else cw.style.display='none';
+}
+function rtbGuess(ans){
+  if(rtbPhase!=='play')return;
+  const card={...rtbDeck.shift(),up:true};rtbCards.push(card);renderRTBCards();
+  const s=rtbStage,cs=rtbCards;let ok=false;
+  if(s===0)ok=(RED_SUITS.includes(card.s)?0:1)===ans;
+  else if(s===1){const p=cs[cs.length-2];ok=(cardVal(card)>cardVal(p)?0:1)===ans;}
+  else if(s===2){const a=cardVal(cs[cs.length-2]),b=cardVal(cs[cs.length-3]);const lo=Math.min(a,b),hi=Math.max(a,b);ok=(cardVal(card)>lo&&cardVal(card)<hi?0:1)===ans;}
+  else ok=['♠','♥','♦','♣'].indexOf(card.s)===ans;
+  const resume=()=>{currentBet.rtb=0;initRTB();};
+  if(ok){
+    rtbMult*=2;
+    if(s===3){
+      const payout=currentBet.rtb*rtbMult;applyDelta(-currentBet.rtb+payout);confetti();
+      if(onlineMode)showResult('WIN',payout-currentBet.rtb,()=>onlineAdvanceTurn(resume));
+      else if(mpMode)showResult('WIN',payout-currentBet.rtb,()=>advanceTurn(resume));
+      else showResult('WIN',payout-currentBet.rtb,resume);
+    }else{rtbStage++;updateRTBStats();toast(`✓ Correct! Multiplier: ${rtbMult}×`);renderRTBQ();}
+  }else{
+    applyDelta(-currentBet.rtb);
+    if(onlineMode)showResult('WRONG',-currentBet.rtb,()=>onlineAdvanceTurn(resume));
+    else if(mpMode)showResult('WRONG',-currentBet.rtb,()=>advanceTurn(resume));
+    else showResult('WRONG',-currentBet.rtb,resume);
+  }
+}
+function rtbCashOut(){
+  if(rtbStage===0)return;
+  const payout=Math.floor(currentBet.rtb*rtbMult);applyDelta(-currentBet.rtb+payout);
+  const resume=()=>{currentBet.rtb=0;initRTB();};
+  if(onlineMode)showResult('CASHOUT',payout-currentBet.rtb,()=>onlineAdvanceTurn(resume));
+  else if(mpMode)showResult('CASHOUT',payout-currentBet.rtb,()=>advanceTurn(resume));
+  else showResult('CASHOUT',payout-currentBet.rtb,resume);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SLOTS
+// ═══════════════════════════════════════════════════════════════
+function initSlots(){
+  currentBet.slot=0;document.getElementById('slot-chips').innerHTML=chipsHTML('slot');refreshBetDsp('slot');
+  slotReels=['🎰','🎰','🎰'];renderReels();
+  document.getElementById('slot-result').textContent='';document.getElementById('slot-result').className='slot-result';
+  document.getElementById('slot-end-turn-wrap').style.display='none';
+  buildPaytable();updateBanner('slot');refreshBal();
+  if(onlineMode&&onlineTurnId!==myPlayerId){
+    document.getElementById('slot-spin-btn').disabled=true;
+    const p=onlinePlayers[onlineTurnId];toast(p?`Waiting for ${p.name}…`:'Waiting…');
+  }
+}
+function buildPaytable(){
+  document.getElementById('paytable').innerHTML=Object.entries(SLOT_PAYS).map(([k,v])=>`<div class="pay-row"><span>${k}</span><span class="pay-mult">${v}×</span></div>`).join('')+`<div class="pay-row"><span>2 of 3 match</span><span class="pay-mult">1.5×</span></div>`;
+}
+function renderReels(spin=[]){slotReels.forEach((s,i)=>{const el=document.getElementById('reel-'+i);el.textContent=s;spin.includes(i)?el.classList.add('spinning'):el.classList.remove('spinning');});}
+function slotSpin(){
+  if(currentBet.slot<=0||currentBet.slot>getBal()||slotSpinning)return;
+  slotSpinning=true;applyDelta(-currentBet.slot);
+  document.getElementById('slot-spin-btn').disabled=true;document.getElementById('slot-clear-btn').disabled=true;
+  document.getElementById('slot-result').textContent='';document.getElementById('slot-result').className='slot-result';
+  document.getElementById('slot-end-turn-wrap').style.display='none';
+  const final=SLOT_SYM.map(()=>SLOT_SYM[0|Math.random()*SLOT_SYM.length]);
+  renderReels([0,1,2]);
+  setTimeout(()=>{slotReels[0]=final[0];renderReels([1,2]);},750);
+  setTimeout(()=>{slotReels[1]=final[1];renderReels([2]);},1350);
+  setTimeout(()=>{
+    slotReels[2]=final[2];renderReels([]);slotSpinning=false;slotSpins++;
+    document.getElementById('slot-spins').textContent=slotSpins;
+    const key=final.join(''),mult=SLOT_PAYS[key];
+    const res=document.getElementById('slot-result');
+    if(mult){const p=currentBet.slot*mult;applyDelta(p);res.textContent=`🎉 +$${p} (${mult}×)`;res.className='slot-result win';if(mult>=10)confetti();toast(`🎰 ${mult}× WIN! +$${p}`);}
+    else if(final[0]===final[1]||final[1]===final[2]){const p=Math.floor(currentBet.slot*1.5);applyDelta(p);res.textContent=`🍀 Partial! +$${p} (1.5×)`;res.className='slot-result win';toast(`🍀 Partial! +$${p}`);}
+    else{res.textContent='No match — spin again!';res.className='slot-result lose';}
+    document.getElementById('slot-clear-btn').disabled=false;
+    if(mpMode||onlineMode){document.getElementById('slot-end-turn-wrap').style.display='flex';}
+    else{document.getElementById('slot-spin-btn').disabled=currentBet.slot<=0||currentBet.slot>getBal();}
+  },1950);
+}
+function slotEndTurn(){
+  document.getElementById('slot-end-turn-wrap').style.display='none';currentBet.slot=0;
+  if(onlineMode)onlineAdvanceTurn(()=>initSlots());
+  else advanceTurn(()=>initSlots());
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOCALSTORAGE
+// ═══════════════════════════════════════════════════════════════
+function saveState(){
+  try{localStorage.setItem('casino_solo_balance',balance);localStorage.setItem('casino_mp_players',JSON.stringify(mpPlayers));}catch(e){}
+}
+function loadState(){
+  try{
+    const b=localStorage.getItem('casino_solo_balance');if(b!==null){balance=parseInt(b)||5000;sessionStart=balance;}
+    const p=localStorage.getItem('casino_mp_players');if(p)mpPlayers=JSON.parse(p);
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SERVICE WORKER
+// ═══════════════════════════════════════════════════════════════
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+(function init(){
+  loadState();refreshBal();initBJ();initRTB();initSlots();renderMPScreen();showScreen('lobby');
+})();
+</script>
+
+<footer style="text-align:center;padding:1rem;font-size:.65rem;color:rgba(240,192,64,.2);font-family:'Cinzel',serif;letter-spacing:.1em">
+  &copy; 2025 SomsSpace.com.au. All rights reserved. By being in this website you agree to <a href="terms of service.html" style="color:rgba(240,192,64,.3)">Terms of Service</a>
+</footer>
+</body>
+</html>
