@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥 Imposter Party Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #080c10;
+  --surface: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --accent: #ff3c3c;
+  --accent2: #ff8c00;
+  --text: #f0f0f0;
+  --muted: #8a8a9a;
+  --card-h: 180px;
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 16px 60px;
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+.wrap {
+  width: 100%; max-width: 440px;
+  position: relative; z-index: 1;
+}
+
+/* ── Header ── */
+.hdr {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+.hdr h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hdr p { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+
+/* ── Panel ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  display: none;
+  animation: fadeUp .3s ease;
+}
+.panel.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Mode selector ── */
+.mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+.mode-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+.mode-card:hover { border-color: var(--accent); background: rgba(255,60,60,0.08); }
+.mode-card .icon { font-size: 2rem; margin-bottom: 8px; }
+.mode-card h3 { font-size: 1rem; font-weight: 700; }
+.mode-card p  { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+
+/* ── Inputs ── */
+label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+input[type="text"], input[type="number"], input[type="range"] {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .2s;
+}
+input:focus { border-color: var(--accent); }
+
+.field { margin-bottom: 16px; }
+
+/* ── Buttons ── */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 6px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #c0392b);
+  color: #fff;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,60,60,0.35); }
+.btn-secondary {
+  background: rgba(255,255,255,0.07);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.12); }
+.btn-ghost {
+  background: none; color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .85rem; letter-spacing: 0;
+  text-decoration: underline;
+  width: auto; margin: 8px auto 0;
+  display: table;
+}
+.btn-ghost:hover { color: var(--text); }
+
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* ── Flip card ── */
+.card-wrap {
+  perspective: 1200px;
+  height: var(--card-h);
+  margin: 20px 0 16px;
+  cursor: pointer;
+}
+.card-inner {
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,0,.2,1);
+}
+.card-wrap.flipped .card-inner { transform: rotateY(180deg); }
+.card-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+  font-size: 1.1rem; font-weight: 600; text-align: center; padding: 20px;
+}
+.card-front {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.card-front span { font-size: 2rem; }
+.card-back {
+  background: linear-gradient(135deg, #1c0a0a, #2d0d0d);
+  border: 1px solid rgba(255,60,60,0.3);
+  color: var(--text);
+  transform: rotateY(180deg);
+}
+.card-back.crewmate {
+  background: linear-gradient(135deg, #0a1c0a, #0d2d0d);
+  border: 1px solid rgba(60,255,100,0.3);
+}
+.role-word { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 2px; }
+.role-sub  { font-size: .82rem; color: var(--muted); margin-top: 4px; }
+
+/* ── Player chip ── */
+.player-chip {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+}
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+  flex-shrink: 0;
+}
+.player-name { font-weight: 700; font-size: 1rem; }
+.player-sub  { font-size: .75rem; color: var(--muted); }
+
+/* ── Progress dots ── */
+.dots {
+  display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border);
+  transition: background .3s;
+}
+.dot.done { background: var(--accent); }
+.dot.current { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+
+/* ── Room code ── */
+.room-code {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 10px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin: 12px 0 4px;
+}
+.room-label { text-align: center; color: var(--muted); font-size: .82rem; }
+
+/* ── Player list ── */
+.player-list { list-style: none; margin: 12px 0; }
+.player-list li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .92rem;
+}
+.player-list li:last-child { border-bottom: none; }
+.player-list .pip {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #3cff64; box-shadow: 0 0 6px #3cff64;
+  flex-shrink: 0;
+}
+.player-list .waiting { background: var(--muted); box-shadow: none; }
+
+/* ── Discussion / end ── */
+.big-result {
+  text-align: center; padding: 12px 0;
+}
+.big-result .emoji { font-size: 3.5rem; margin-bottom: 10px; }
+.big-result h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem; letter-spacing: 2px;
+  color: var(--accent);
+}
+.big-result .word-reveal {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 3px;
+  margin: 8px 0; color: var(--text);
+}
+.big-result .clue { color: var(--muted); font-size: .85rem; }
+
+.starter-box {
+  background: rgba(255,140,0,0.1);
+  border: 1px solid rgba(255,140,0,0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+  text-align: center;
+  margin-top: 14px;
+}
+.starter-box p { color: var(--muted); font-size: .8rem; margin-bottom: 4px; }
+.starter-box strong { font-size: 1.1rem; color: var(--accent2); }
+
+/* ── Online waiting ── */
+.waiting-anim {
+  display: flex; gap: 6px; justify-content: center; margin: 16px 0;
+}
+.waiting-anim span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  animation: bounce 1s ease-in-out infinite;
+}
+.waiting-anim span:nth-child(2) { animation-delay: .15s; }
+.waiting-anim span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce {
+  0%,100% { transform: translateY(0); opacity: .4; }
+  50%      { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ── Online join view ── */
+.join-emoji { font-size: 3rem; text-align: center; margin-bottom: 12px; }
+
+/* ── Tag ── */
+.tag {
+  display: inline-block;
+  font-size: .7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 50px;
+  background: rgba(255,60,60,0.15);
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.tag.online { background: rgba(60,255,100,0.1); color: #3cff64; }
+
+/* ── Misc ── */
+.divider {
+  border: none; border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+.info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .85rem; color: var(--muted); margin-bottom: 8px;
+}
+.info-row strong { color: var(--text); }
+
+.hidden { display: none !important; }
+
+/* ── Online player phone view ── */
+.phone-panel {
+  min-height: 60vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px;
+}
+.phone-panel h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem; letter-spacing: 2px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <h1>IMPOSTER</h1>
+    <p>Party game · Know the word or bluff through it 😈</p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 0 — MODE SELECT
+  ══════════════════════════════════════ -->
+  <div class="panel active" id="s-mode">
+    <div class="tag">Select Mode</div>
+    <div class="mode-grid">
+      <div class="mode-card" onclick="chooseMode('local')">
+        <div class="icon">📱</div>
+        <h3>Local</h3>
+        <p>Pass one phone around</p>
+      </div>
+      <div class="mode-card" onclick="chooseMode('online')">
+        <div class="icon">🌐</div>
+        <h3>Online</h3>
+        <p>Each player uses their own phone</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       LOCAL — SETUP
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-local-setup">
+    <div class="tag">Local Mode</div>
+    <div class="field">
+      <label>Player Names (comma-separated)</label>
+      <input type="text" id="l-names" placeholder="e.g. Som, Jake, Sarah, Mia">
+    </div>
+    <div class="field">
+      <label>Number of Players</label>
+      <input type="number" id="l-count" value="4" min="3" max="20">
+    </div>
+    <button class="btn btn-primary" onclick="localStart()">Start Game 🔥</button>
+    <button class="btn-ghost" onclick="showMode()">← Back</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       LOCAL — ROLE REVEAL
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-local-game">
+    <div class="dots" id="l-dots"></div>
+    <div class="player-chip">
+      <div class="avatar" id="l-avatar">?</div>
+      <div>
+        <div class="player-name" id="l-player-name">Player</div>
+        <div class="player-sub">Tap the card to reveal your role</div>
+      </div>
+    </div>
+    <div class="card-wrap" id="l-card" onclick="localReveal()">
+      <div class="card-inner">
+        <div class="card-face card-front">
+          <span>😈</span>
+          <div>Tap to reveal</div>
+        </div>
+        <div class="card-face card-back" id="l-card-back">
+          <div class="role-word" id="l-role-word"></div>
+          <div class="role-sub"  id="l-role-sub"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="localHide()">Hide 🙈</button>
+      <button class="btn btn-primary"  onclick="localNext()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       LOCAL — DISCUSSION
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-local-discuss">
+    <div class="big-result">
+      <div class="emoji">🗣️</div>
+      <h2>Discussion Time</h2>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:6px">Talk it out — who's bluffing?</p>
+    </div>
+    <div class="starter-box">
+      <p>👉 First to speak</p>
+      <strong id="l-starter">—</strong>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px" onclick="localRevealImposter()">Reveal Imposter 😈</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       LOCAL — END
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-local-end">
+    <div class="big-result">
+      <div class="emoji">🎭</div>
+      <h2 id="l-end-imposter">Imposter was —</h2>
+      <div class="word-reveal" id="l-end-word"></div>
+      <div class="clue" id="l-end-clue"></div>
+    </div>
+    <div class="starter-box">
+      <p>👉 Starts next round</p>
+      <strong id="l-end-starter">—</strong>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px" onclick="location.reload()">Play Again 🔄</button>
+    <button class="btn-ghost" onclick="showMode()">← Change Mode</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ONLINE — HOST SETUP
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-online-host-setup">
+    <div class="tag online">Online Mode · Host</div>
+    <div class="field">
+      <label>Your Name</label>
+      <input type="text" id="o-host-name" placeholder="Your name">
+    </div>
+    <button class="btn btn-primary" onclick="onlineHostCreate()">Create Room 🏠</button>
+    <hr class="divider">
+    <p style="text-align:center;color:var(--muted);font-size:.82rem;margin-bottom:12px">Already have a code?</p>
+    <div class="field">
+      <label>Room Code</label>
+      <input type="text" id="o-join-code" placeholder="e.g. 4823" maxlength="4" style="text-align:center;font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:8px">
+    </div>
+    <div class="field">
+      <label>Your Name</label>
+      <input type="text" id="o-join-name" placeholder="Your name">
+    </div>
+    <button class="btn btn-secondary" onclick="onlineJoin()">Join Room →</button>
+    <button class="btn-ghost" onclick="showMode()">← Back</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ONLINE — LOBBY (Host waits)
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-online-lobby">
+    <div class="tag online">Lobby</div>
+    <div class="room-label">Share this code</div>
+    <div class="room-code" id="o-room-display">—</div>
+    <div class="room-label" style="margin-bottom:16px">Players join at <strong style="color:var(--text)">somsspace.com.au/imposter.html</strong></div>
+    <div class="info-row">
+      <span>Players joined</span>
+      <strong id="o-player-count">1 / ?</strong>
+    </div>
+    <ul class="player-list" id="o-player-list"></ul>
+    <div class="waiting-anim"><span></span><span></span><span></span></div>
+    <div class="field" style="margin-top:12px">
+      <label>Min players to start</label>
+      <input type="number" id="o-min-players" value="3" min="3" max="20">
+    </div>
+    <button class="btn btn-primary" id="o-start-btn" onclick="onlineHostStart()" disabled>Start Game 🔥</button>
+    <button class="btn-ghost" onclick="location.reload()">← Cancel</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ONLINE — PLAYER WAITING
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-online-waiting">
+    <div class="phone-panel">
+      <div style="font-size:3rem">⏳</div>
+      <h2>Waiting for host…</h2>
+      <p style="color:var(--muted);font-size:.88rem">The host will start the game soon</p>
+      <div class="waiting-anim"><span></span><span></span><span></span></div>
+      <div class="player-chip" style="margin-top:8px">
+        <div class="avatar" id="o-waiting-avatar">?</div>
+        <div>
+          <div class="player-name" id="o-waiting-name">You</div>
+          <div class="player-sub">in room <span id="o-waiting-room">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ONLINE — ROLE REVEAL (each player's phone)
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-online-role">
+    <div class="tag online">Your Role</div>
+    <div class="player-chip">
+      <div class="avatar" id="o-role-avatar">?</div>
+      <div>
+        <div class="player-name" id="o-role-name">Player</div>
+        <div class="player-sub">Tap the card to see your role</div>
+      </div>
+    </div>
+    <div class="card-wrap" id="o-card" onclick="onlineReveal()">
+      <div class="card-inner">
+        <div class="card-face card-front">
+          <span>😈</span>
+          <div>Tap to reveal</div>
+        </div>
+        <div class="card-face card-back" id="o-card-back">
+          <div class="role-word" id="o-role-word"></div>
+          <div class="role-sub"  id="o-role-sub"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="onlineHide()">Hide 🙈</button>
+    </div>
+    <div class="starter-box" style="margin-top:14px">
+      <p>👉 First to speak</p>
+      <strong id="o-starter-name">—</strong>
+    </div>
+    <hr class="divider">
+    <p style="color:var(--muted);font-size:.82rem;text-align:center">Discuss with the group then vote!</p>
+    <button class="btn btn-primary" style="margin-top:10px" id="o-reveal-btn" onclick="onlineRevealImposter()">Reveal Imposter 😈</button>
+    <p style="color:var(--muted);font-size:.75rem;text-align:center;margin-top:6px">(Host taps this)</p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ONLINE — END
+  ══════════════════════════════════════ -->
+  <div class="panel" id="s-online-end">
+    <div class="big-result">
+      <div class="emoji">🎭</div>
+      <h2 id="o-end-imposter">Imposter was —</h2>
+      <div class="word-reveal" id="o-end-word"></div>
+      <div class="clue" id="o-end-clue"></div>
+    </div>
+    <div class="starter-box">
+      <p>👉 Starts next round</p>
+      <strong id="o-end-starter">—</strong>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px" onclick="location.reload()">Play Again 🔄</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, push, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ─── Firebase config (free Realtime DB — replace with your own if needed) ─── */
+const firebaseConfig = {
+  apiKey: "AIzaSyBabhSEZhKZzwUhRkx4V7-bDaOGb7KuH1g",
+  authDomain: "inposter-ee238.firebaseapp.com",
+  databaseURL: "https://inposter-ee238-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "inposter-ee238",
+  storageBucket: "inposter-ee238.firebasestorage.app",
+  messagingSenderId: "835003108874",
+  appId: "1:835003108874:web:c588ca2cbc5f8529dc19f3"
+};
+
+let app, db;
+let isFirebaseOk = false;
+
+try {
+  app = initializeApp(firebaseConfig);
+  db  = getDatabase(app);
+  isFirebaseOk = true;
+} catch(e) {
+  console.warn("Firebase init failed — online mode will use demo fallback:", e);
+}
+
+/* expose to global */
+window._fb = { ref, set, get, update, onValue, push, remove, db, isFirebaseOk };
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   WORD DATABASE (full from original, kept intact)
+═══════════════════════════════════════════════════════ */
+const words = [
+  { word: "Nordic", clue: "Race" },
+  { word: "Slavic", clue: "Race" },
+  { word: "Germanic", clue: "Race" },
+  { word: "Arab", clue: "Race" },
+  { word: "Persian", clue: "Race" },
+  { word: "Turkic", clue: "Race" },
+  { word: "Kurdish", clue: "Race" },
+  { word: "Hispanic", clue: "Cultural / Ethnic Group" },
+  { word: "Black American", clue: "Cultural / Ethnic Group" },
+  { word: "Maori", clue: "Indigenous People" },
+  { word: "Jewish", clue: "Religious / Ethnic Group" },
+  { word: "Tibetan", clue: "Ethnic Group" },
+  { word: "Romani", clue: "Ethnic Group" },
+  { word: "Inuit", clue: "Indigenous People" },
+  { word: "Aboriginal Australian", clue: "Indigenous People" },
+  { word: "Amazonian Tribe", clue: "Indigenous People" },
+  { word: "Basque", clue: "Ethnic Group" },
+  { word: "Han Chinese", clue: "Ethnic Group" },
+  { word: "Punjabi", clue: "Ethnic Group" },
+  { word: "Isaac Newton", clue: "Scientist" },
+  { word: "Nikola Tesla", clue: "Scientist" },
+  { word: "Stephen Hawking", clue: "Scientist" },
+  { word: "Albert Einstein", clue: "Scientist" },
+  { word: "Marie Curie", clue: "Scientist" },
+  { word: "Charles Darwin", clue: "Scientist" },
+  { word: "Galileo Galilei", clue: "Scientist" },
+  { word: "Neil deGrasse Tyson", clue: "Scientist / TV Personality" },
+  { word: "Bill Nye", clue: "Science Guy 🤓" },
+  { word: "Robert Oppenheimer", clue: "Scientist (Uh oh)" },
+  { word: "Horse", clue: "Animal" },
+  { word: "Capybara", clue: "Internet's Favourite Animal" },
+  { word: "Platypus", clue: "Animal (God was drunk)" },
+  { word: "Tardigrade", clue: "Microscopic Survivor" },
+  { word: "Naked Mole Rat", clue: "Animal (Nature's Mistake)" },
+  { word: "Axolotl", clue: "Animal / TikTok Mascot" },
+  { word: "Honey Badger", clue: "Animal (Doesn't Care)" },
+  { word: "Blue-Ringed Octopus", clue: "Adorable Death Machine" },
+  { word: "Komodo Dragon", clue: "Animal" },
+  { word: "Mantis Shrimp", clue: "Animal (Punches Hard)" },
+  { word: "Goblin Shark", clue: "Deep Sea Nightmare" },
+  { word: "Aye-Aye", clue: "Cursed Primate" },
+  { word: "Pangolin", clue: "Animal (Started a Pandemic, allegedly)" },
+  { word: "Dolphin", clue: "Animal (Surprisingly Dark)" },
+  { word: "Crow", clue: "Smarter Than Your Dog" },
+  { word: "Napoleon Bonaparte", clue: "Historical Leader (Short King)" },
+  { word: "Adolf Hitler", clue: "Historical Figure (The Worst)" },
+  { word: "Joseph Stalin", clue: "Historical Figure (Also Terrible)" },
+  { word: "Cleopatra", clue: "Historical Leader" },
+  { word: "Julius Caesar", clue: "Historical Leader (Et tu, Brute?)" },
+  { word: "Genghis Khan", clue: "Historical Figure (Very Busy)" },
+  { word: "Alexander the Great", clue: "Historical Leader" },
+  { word: "Attila the Hun", clue: "Historical Leader (Unhinged)" },
+  { word: "Vlad the Impaler", clue: "Historical Figure (Original Dracula)" },
+  { word: "Nero", clue: "Historical Leader (Fiddled While Rome Burned)" },
+  { word: "Caligula", clue: "Historical Leader (Do Not Google)" },
+  { word: "Ivan the Terrible", clue: "Historical Leader (Named Accurately)" },
+  { word: "Pol Pot", clue: "Historical Figure (Horrific)" },
+  { word: "Idi Amin", clue: "Historical Leader (Unhinged Dictator)" },
+  { word: "Mussolini", clue: "Historical Leader (Train Guy)" },
+  { word: "Mao Zedong", clue: "Historical Leader / Mass Disaster" },
+  { word: "Kim Il Sung", clue: "Historical Leader (North Korea Grandpa)" },
+  { word: "Francisco Franco", clue: "Historical Leader (Spain's Problem)" },
+  { word: "Augusto Pinochet", clue: "Historical Leader (Helicopter Enthusiast)" },
+  { word: "Queen Victoria", clue: "Historical Leader (Colonial Era)" },
+  { word: "Henry VIII", clue: "Historical Leader (Wife Collector)" },
+  { word: "Rasputin", clue: "Historical Figure (Impossible to Kill)" },
+  { word: "Nikita Khrushchev", clue: "Historical Leader (Shoe Banger)" },
+  { word: "Donald Trump", clue: "Politics (Very Online)" },
+  { word: "Joe Biden", clue: "Politics (Nap Time)" },
+  { word: "Vladimir Putin", clue: "Politics (Shirtless Horse Guy)" },
+  { word: "Benjamin Netanyahu", clue: "Politics (Controversial)" },
+  { word: "Kim Jong Un", clue: "Politics (Supreme Meme)" },
+  { word: "Xi Jinping", clue: "Politics (Winnie the Pooh, apparently)" },
+  { word: "Emmanuel Macron", clue: "Politics (Very French)" },
+  { word: "Jair Bolsonaro", clue: "Politics (Brazil's Trump)" },
+  { word: "Saddam Hussein", clue: "Politics (Found in a Hole)" },
+  { word: "Osama bin Laden", clue: "Militant Leader" },
+  { word: "El Chapo", clue: "Crime / Politics (Tunnel Expert)" },
+  { word: "Pablo Escobar", clue: "Crime / Politics (Netflix Made Him Cool)" },
+  { word: "Ali Khamenei", clue: "Politics (Supreme Leader)" },
+  { word: "Bashar al-Assad", clue: "Politics (Controversial)" },
+  { word: "Mohammed bin Salman", clue: "Politics (MBS)" },
+  { word: "Muammar Gaddafi", clue: "Politics (Interesting Fashion)" },
+  { word: "Hugo Chavez", clue: "Politics (Venezuela's Drama)" },
+  { word: "Nicolas Maduro", clue: "Politics (Venezuela's More Drama)" },
+  { word: "Lukashenko", clue: "Politics (Europe's Last Dictator, allegedly)" },
+  { word: "Narendra Modi", clue: "Politics (India)" },
+  { word: "Viktor Orbán", clue: "Politics (Hungary's Problem)" },
+  { word: "Nigel Farage", clue: "Politics (Brexit Guy)" },
+  { word: "Boris Johnson", clue: "Politics (Messy Hair, Messier Policies)" },
+  { word: "Giorgia Meloni", clue: "Politics (Italy)" },
+  { word: "Marine Le Pen", clue: "Politics (France, Far Right)" },
+  { word: "Rodrigo Duterte", clue: "Politics (Philippines, Unhinged)" },
+  { word: "Imran Khan", clue: "Politics (Cricket PM)" },
+  { word: "Zelensky", clue: "Politics (Former Comedian, Now Legend)" },
+  { word: "George W. Bush", clue: "Politics (Pretzel Incident)" },
+  { word: "Dick Cheney", clue: "Politics (Shot a Guy)" },
+  { word: "Hillary Clinton", clue: "Politics (The Emails)" },
+  { word: "Bernie Sanders", clue: "Politics (Mittens)" },
+  { word: "AOC", clue: "Politics (Twitter's Favourite)" },
+  { word: "Ron DeSantis", clue: "Politics (Florida Man, Governor Edition)" },
+  { word: "Elon Musk", clue: "Business / Tech (Buys Everything)" },
+  { word: "Lula da Silva", clue: "Politics (Brazil)" },
+  { word: "Scott Morrison", clue: "Politics (Australia, Hawaii Escapee)" },
+  { word: "Anthony Albanese", clue: "Politics (Australia)" },
+  { word: "Mark Zuckerberg", clue: "Tech Founder (Robot in a Human Suit)" },
+  { word: "Jeff Bezos", clue: "Business (Amazon Box Guy)" },
+  { word: "Steve Jobs", clue: "Tech Founder (Turtleneck Icon)" },
+  { word: "Bill Gates", clue: "Tech (Mosquito Agenda)" },
+  { word: "Sam Altman", clue: "Tech (ChatGPT Boss)" },
+  { word: "Elizabeth Holmes", clue: "Business (Theranos Fraudster)" },
+  { word: "Sam Bankman-Fried", clue: "Crypto (Went to Prison)" },
+  { word: "Bernie Madoff", clue: "Business (Biggest Ponzi Ever)" },
+  { word: "Kim Kardashian", clue: "Reality TV (Famous for Being Famous)" },
+  { word: "Logan Paul", clue: "YouTube (Somehow Still Relevant)" },
+  { word: "Jake Paul", clue: "YouTube (Became a Boxer??)" },
+  { word: "Kanye West", clue: "Music / Controversy (Main Character)" },
+  { word: "J.K. Rowling", clue: "Author / Twitter Villain (Some say)" },
+  { word: "MrBeast", clue: "YouTube (Gives Away Money)" },
+  { word: "PewDiePie", clue: "YouTube (OG King)" },
+  { word: "Cardi B", clue: "Music (Okurr)" },
+  { word: "Nicki Minaj", clue: "Music (Beef Expert)" },
+  { word: "Taylor Swift", clue: "Music (The Eras of Drama)" },
+  { word: "Beyoncé", clue: "Music (Literally a Religion)" },
+  { word: "Drake", clue: "Music (Certified Controversy)" },
+  { word: "Eminem", clue: "Music (Mom's Spaghetti)" },
+  { word: "Snoop Dogg", clue: "Music / Olympic Correspondent" },
+  { word: "Chris Brown", clue: "Music (Cancelled, Uncancelled, Cancelled)" },
+  { word: "Amber Heard", clue: "Pop Culture (Aquaman's Mistake)" },
+  { word: "Johnny Depp", clue: "Pop Culture (Won the Trial)" },
+  { word: "Justin Bieber", clue: "Music (Grew Up Awkwardly)" },
+  { word: "Miley Cyrus", clue: "Music (Hannah Montana Era Ended)" },
+  { word: "Lady Gaga", clue: "Music (Meat Dress Era)" },
+  { word: "Billie Eilish", clue: "Music (Gen Z's Voice)" },
+  { word: "Ariana Grande", clue: "Music (Tiny Human, Big Voice)" },
+  { word: "Doja Cat", clue: "Music (Very Online)" },
+  { word: "Andrew Tate", clue: "Controversy (Matrix Escapee)" },
+  { word: "Joe Rogan", clue: "Podcast (DMT Enthusiast)" },
+  { word: "Jeffrey Epstein", clue: "Controversial Figure (Didn't Kill Himself)" },
+  { word: "Harvey Weinstein", clue: "Controversial Figure (Prison)" },
+  { word: "Will Smith", clue: "Pop Culture (The Slap)" },
+  { word: "Keanu Reeves", clue: "Actor (Internet's Favourite Person)" },
+  { word: "Ryan Reynolds", clue: "Actor / Marketing Genius" },
+  { word: "Dwayne Johnson", clue: "Actor / Can You Smell It" },
+  { word: "Gordon Ramsay", clue: "Chef (IDIOT SANDWICH)" },
+  { word: "Oprah Winfrey", clue: "TV (YOU GET A CAR)" },
+  { word: "Cristiano Ronaldo", clue: "Athlete (SIUUU)" },
+  { word: "Lionel Messi", clue: "Athlete (The GOAT, probably)" },
+  { word: "Serena Williams", clue: "Athlete" },
+  { word: "Usain Bolt", clue: "Athlete (Lightning)" },
+  { word: "Michael Jordan", clue: "Athlete (And I Took That Personally)" },
+  { word: "LeBron James", clue: "Athlete (Forehead Debate)" },
+  { word: "Muhammad Ali", clue: "Athlete (Greatest of All Time)" },
+  { word: "Tiger Woods", clue: "Athlete (Fire Hydrant Era)" },
+  { word: "Lance Armstrong", clue: "Athlete (Took Shortcuts)" },
+  { word: "Floyd Mayweather", clue: "Athlete (Undefeated, Unreadable)" },
+  { word: "Conor McGregor", clue: "Athlete (Talked More Than Fought)" },
+  { word: "Mike Tyson", clue: "Athlete (Ear Collector)" },
+  { word: "Simone Biles", clue: "Athlete (Gravity Optional)" },
+  { word: "Roger Federer", clue: "Athlete (Tennis Gentleman)" },
+  { word: "Novak Djokovic", clue: "Athlete (Antivaxxer Edition)" },
+  { word: "Shaquille O'Neal", clue: "Athlete / DJ / Entrepreneur" },
+  { word: "Kobe Bryant", clue: "Athlete (Mamba Forever)" },
+  { word: "Neymar", clue: "Athlete (Professional Faller)" },
+  { word: "Zlatan Ibrahimovic", clue: "Athlete (Third Person Talker)" },
+  { word: "Lewis Hamilton", clue: "Athlete (F1 Goat)" },
+  { word: "Max Verstappen", clue: "Athlete (Penalised Daily)" },
+  { word: "United States", clue: "Country" },
+  { word: "China", clue: "Country" },
+  { word: "India", clue: "Country" },
+  { word: "Germany", clue: "Country" },
+  { word: "France", clue: "Country (Baguette Central)" },
+  { word: "Brazil", clue: "Country" },
+  { word: "Japan", clue: "Country" },
+  { word: "Australia", clue: "Country (Everything Wants to Kill You)" },
+  { word: "Canada", clue: "Country (Apologises a Lot)" },
+  { word: "United Kingdom", clue: "Country (Tea Drinkers)" },
+  { word: "Russia", clue: "Country (Big Sad)" },
+  { word: "Italy", clue: "Country (Pasta is a Religion)" },
+  { word: "Mexico", clue: "Country" },
+  { word: "South Africa", clue: "Country" },
+  { word: "Egypt", clue: "Country" },
+  { word: "Argentina", clue: "Country (Messi Tax)" },
+  { word: "Spain", clue: "Country" },
+  { word: "Norway", clue: "Country (Oil Rich, Sad Films)" },
+  { word: "Sweden", clue: "Country (IKEA Homeland)" },
+  { word: "New Zealand", clue: "Country (Hobbit Territory)" },
+  { word: "Greece", clue: "Country (Invented Democracy, Went Broke)" },
+  { word: "Saudi Arabia", clue: "Country" },
+  { word: "Turkey", clue: "Country (Also a Bird)" },
+  { word: "Thailand", clue: "Country" },
+  { word: "South Korea", clue: "Country (K-Pop Factory)" },
+  { word: "North Korea", clue: "Country (Very Closed)" },
+  { word: "Nigeria", clue: "Country" },
+  { word: "Colombia", clue: "Country (Netflix Made It Famous)" },
+  { word: "Switzerland", clue: "Country (Neutral About Everything)" },
+  { word: "Netherlands", clue: "Country (Tall People, Legal Things)" },
+  { word: "Ukraine", clue: "Country (Resilient)" },
+  { word: "Finland", clue: "Country (Happiest, Allegedly)" },
+  { word: "Ireland", clue: "Country (Potatoes and Pubs)" },
+  { word: "Iceland", clue: "Country (Green Would've Been Better Name)" },
+  { word: "Singapore", clue: "Country (Fine for Everything)" },
+  { word: "Iran", clue: "Country" },
+  { word: "Iraq", clue: "Country (Had a Rough Few Decades)" },
+  { word: "Israel", clue: "Country (Very Complicated)" },
+  { word: "Palestine", clue: "Country (Very Complicated)" },
+  { word: "Venezuela", clue: "Country (Economic Drama)" },
+  { word: "Cuba", clue: "Country (Embargo Island)" },
+  { word: "Vatican City", clue: "Country (Tiny God Zone)" },
+  { word: "Monaco", clue: "Country (Rich People Parking Lot)" },
+  { word: "New York", clue: "City (Everyone's Ex Lives There)" },
+  { word: "Tokyo", clue: "City" },
+  { word: "London", clue: "City (It Will Rain)" },
+  { word: "Paris", clue: "City (Romanticised by People Who Haven't Been)" },
+  { word: "Sydney", clue: "City" },
+  { word: "Dubai", clue: "City (Gold Vending Machines)" },
+  { word: "Rome", clue: "City (Eternal Traffic Jam)" },
+  { word: "Barcelona", clue: "City" },
+  { word: "Los Angeles", clue: "City (Traffic is the Culture)" },
+  { word: "Las Vegas", clue: "City (What Happens There...)" },
+  { word: "Miami", clue: "City (Florida Man HQ)" },
+  { word: "Berlin", clue: "City (Club Capital)" },
+  { word: "Amsterdam", clue: "City (Bikes and... other things)" },
+  { word: "Seoul", clue: "City" },
+  { word: "Bangkok", clue: "City (Officially Named Something Else)" },
+  { word: "Mumbai", clue: "City (Bollywood HQ)" },
+  { word: "Cairo", clue: "City (Pyramids Nearby)" },
+  { word: "Istanbul", clue: "City (Used to Be Constantinople)" },
+  { word: "Adelaide", clue: "City (Underrated)" },
+  { word: "Roblox", clue: "Video Game (Raised a Generation)" },
+  { word: "Among Us", clue: "Video Game (2020 Peak)" },
+  { word: "Schedule 1", clue: "Video Game (You're a Drug Dealer)" },
+  { word: "Minecraft", clue: "Video Game (Block Therapy)" },
+  { word: "Fortnite", clue: "Video Game (Dad's Nightmare)" },
+  { word: "GTA 5", clue: "Video Game (Still Selling)" },
+  { word: "Call of Duty", clue: "Video Game (12-Year-Old Trauma)" },
+  { word: "League of Legends", clue: "Video Game (Relationship Destroyer)" },
+  { word: "Valorant", clue: "Video Game (Aim Training Addiction)" },
+  { word: "Elden Ring", clue: "Video Game (You Will Suffer)" },
+  { word: "Dark Souls", clue: "Video Game (You Died)" },
+  { word: "FIFA", clue: "Video Game (Spend Money, Still Lose)" },
+  { word: "Stardew Valley", clue: "Video Game (Quit Your Job Simulator)" },
+  { word: "The Sims", clue: "Video Game (God Complex Simulator)" },
+  { word: "Genshin Impact", clue: "Video Game (Wallet Destroyer)" },
+  { word: "Pokémon GO", clue: "Video Game (Walked Outside Once)" },
+  { word: "Counter-Strike", clue: "Video Game (Classic Headshot)" },
+  { word: "Tetris", clue: "Video Game (Brain Rot Classic)" },
+  { word: "Christianity", clue: "Religion" },
+  { word: "Islam", clue: "Religion" },
+  { word: "Hinduism", clue: "Religion" },
+  { word: "Buddhism", clue: "Religion" },
+  { word: "Atheism", clue: "Belief System (Very Vocal About It)" },
+  { word: "Judaism", clue: "Religion" },
+  { word: "Sikhism", clue: "Religion" },
+  { word: "Scientology", clue: "Religion (??) (Celebrities Love It)" },
+  { word: "Mormonism", clue: "Religion (Utah Edition)" },
+  { word: "Flat Earth", clue: "Belief System (No, Just No)" },
+  { word: "Sigma Male", clue: "Internet Concept (Grindset)" },
+  { word: "Chad", clue: "Internet Meme (Alpha Gigachad)" },
+  { word: "NPC", clue: "Internet Concept (Background Character)" },
+  { word: "Rizz", clue: "Internet Slang (Natural Charisma)" },
+  { word: "Skibidi Toilet", clue: "Internet Content (Children's Lore)" },
+  { word: "Brain Rot", clue: "Internet Diagnosis (You Have It)" },
+  { word: "Delulu", clue: "Internet Slang (Delusional, Affectionately)" },
+  { word: "Copium", clue: "Internet Drug (For Losers, Ironically)" },
+  { word: "No Cap", clue: "Internet Slang (Not Lying, Allegedly)" },
+  { word: "Mid", clue: "Internet Critique (Mediocre)" },
+  { word: "Based", clue: "Internet Compliment (Sometimes)" },
+  { word: "Cringe", clue: "Internet Verdict (You Know It When You See It)" },
+  { word: "Shrek", clue: "Movie / Internet God" },
+  { word: "Distracted Boyfriend", clue: "Meme (Classic)" },
+  { word: "Karen", clue: "Internet Archetype (Manager Please)" },
+  { word: "Gigachad", clue: "Internet Meme (Peak Male, Apparently)" },
+  { word: "Capitalism", clue: "Economic System (Loves Itself)" },
+  { word: "Communism", clue: "Economic System (Great in Theory, ask Marx)" },
+  { word: "Feminism", clue: "Movement (Some People Weirdly Mad About It)" },
+  { word: "Cancel Culture", clue: "Social Phenomenon" },
+  { word: "Simulation Theory", clue: "Existential Crisis Starter" },
+  { word: "Climate Change", clue: "Science (Happening)" },
+  { word: "Gaslighting", clue: "Psychology Term (Now Used for Everything)" },
+  { word: "NFT", clue: "Tech Concept (Remember When?)" },
+  { word: "Crypto", clue: "Finance (Buy High, Panic, Sell Low)" },
+  { word: "AI", clue: "Technology (Taking Your Job, Maybe)" },
+  { word: "Area 51", clue: "Military Base / Meme" },
+  { word: "Illuminati", clue: "Conspiracy (They're Everywhere)" },
+  { word: "Pineapple Pizza", clue: "Food (Divisive)" },
+  { word: "Avocado Toast", clue: "Food (Millennial Housing Crisis Cause)" },
+  { word: "Sushi", clue: "Food" },
+  { word: "McDonald's", clue: "Food (Globally Unavoidable)" },
+  { word: "Vegemite", clue: "Food (Australian Punishment)" },
+  { word: "Durian", clue: "Fruit (Smells Like Crime)" },
+  { word: "Energy Drinks", clue: "Food (Slow Death, Tasty)" },
+  { word: "Instant Noodles", clue: "Food (University Survival)" },
+  { word: "Florida Man", clue: "News Phenomenon" },
+  { word: "GameStop Stock", clue: "Finance Event (Reddit Won Once)" },
+  { word: "Dogecoin", clue: "Crypto (Joke That Made Millions)" },
+  { word: "OnlyFans", clue: "Platform (Many Career Changes)" },
+  { word: "Homework", clue: "Academic Torture" },
+  { word: "Sleep Deprivation", clue: "Student Lifestyle" },
+  { word: "Procrastination", clue: "Life Skill (Poorly Used)" },
+  { word: "Student Loans", clue: "Financial Horror" },
+  { word: "Influencer", clue: "Job (Show Me the Product)" },
+  { word: "Gym Bro", clue: "Subculture (Do You Even Lift)" },
+  { word: "Karen", clue: "Internet Archetype (Manager Please)" },
+  { word: "IKEA", clue: "Store (Maze With Meatballs)" },
+  { word: "Tax Season", clue: "Annual Trauma" },
+  { word: "Airport Security", clue: "Experience (Shoes Off, Dignity Gone)" },
+  { word: "Algorithms", clue: "Technology (Control Your Brain)" },
+  { word: "Autocorrect", clue: "Technology (Ducking Things Up)" },
+  { word: "Printer", clue: "Technology (Only Breaks When Urgent)" },
+  { word: "Ghosting", clue: "Dating Phenomenon" },
+  { word: "Situationship", clue: "Dating (Almost But Not Quite)" },
+  { word: "Therapy", clue: "Self-Care (Do It)" },
+  { word: "Doomscrolling", clue: "Habit (Bad for Brain, Unstoppable)" },
+  { word: "Hustle Culture", clue: "Ideology (Sleep is for the Weak, Apparently)" },
+  { word: "Zoom Call", clue: "Work Technology (Camera Optional, Pants Also)" },
+];
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randInt(n) { return Math.floor(Math.random() * n); }
+function initials(name) { return name.trim().split(/\s+/).map(w=>w[0].toUpperCase()).join('').slice(0,2); }
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = randInt(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showMode() { show('s-mode'); }
+
+/* ═══════════════════════════════════════════════════════
+   MODE SELECT
+═══════════════════════════════════════════════════════ */
+function chooseMode(mode) {
+  if (mode === 'local') show('s-local-setup');
+  else show('s-online-host-setup');
+}
+window.chooseMode = chooseMode;
+window.showMode = showMode;
+
+/* ═══════════════════════════════════════════════════════
+   LOCAL MODE
+═══════════════════════════════════════════════════════ */
+let L = {
+  players: [], currentPlayer: 0,
+  imposterIndex: -1, chosenWord: null, revealed: false
+};
+
+function localStart() {
+  const raw = document.getElementById('l-names').value;
+  let count = parseInt(document.getElementById('l-count').value);
+  let names = raw.split(',').map(x=>x.trim()).filter(Boolean);
+  if (names.length < 3) { alert('Enter at least 3 player names'); return; }
+  if (count < 3) count = 3;
+  names = names.slice(0, count);
+  shuffle(names);
+
+  L.players = names;
+  L.currentPlayer = 0;
+  L.imposterIndex = randInt(names.length); // truly random, no bias
+  L.chosenWord = rand(words);
+  L.revealed = false;
+
+  buildDots();
+  show('s-local-game');
+  localUpdatePlayer();
+}
+
+function buildDots() {
+  const el = document.getElementById('l-dots');
+  el.innerHTML = L.players.map((_, i) =>
+    `<div class="dot ${i === 0 ? 'current' : ''}" id="dot-${i}"></div>`
+  ).join('');
+}
+
+function localUpdatePlayer() {
+  const p = L.players[L.currentPlayer];
+  document.getElementById('l-avatar').innerText = initials(p);
+  document.getElementById('l-player-name').innerText = p;
+  document.getElementById('l-card').classList.remove('flipped');
+  document.getElementById('l-card-back').classList.remove('crewmate');
+  document.getElementById('l-role-word').innerText = '';
+  document.getElementById('l-role-sub').innerText = '';
+  L.revealed = false;
+
+  // dots
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot';
+    if (i < L.currentPlayer) d.classList.add('done');
+    else if (i === L.currentPlayer) d.classList.add('current');
+  });
+}
+
+function localReveal() {
+  if (L.revealed) return;
+  L.revealed = true;
+  const isImposter = L.currentPlayer === L.imposterIndex;
+  const back = document.getElementById('l-card-back');
+  if (isImposter) {
+    document.getElementById('l-role-word').innerText = 'IMPOSTER 😈';
+    document.getElementById('l-role-sub').innerText  = 'Clue: ' + L.chosenWord.clue;
+    back.classList.remove('crewmate');
+  } else {
+    document.getElementById('l-role-word').innerText = L.chosenWord.word;
+    document.getElementById('l-role-sub').innerText  = 'You are a crewmate 🟢';
+    back.classList.add('crewmate');
+  }
+  document.getElementById('l-card').classList.add('flipped');
+}
+
+function localHide() {
+  document.getElementById('l-card').classList.remove('flipped');
+  L.revealed = false;
+}
+
+function localNext() {
+  if (L.currentPlayer < L.players.length - 1) {
+    L.currentPlayer++;
+    localUpdatePlayer();
+  } else {
+    const starter = rand(L.players);
+    document.getElementById('l-starter').innerText = starter;
+    show('s-local-discuss');
+  }
+}
+
+function localRevealImposter() {
+  const impName = L.players[L.imposterIndex];
+  const starter = rand(L.players);
+  document.getElementById('l-end-imposter').innerText = '😈 ' + impName + ' was the Imposter';
+  document.getElementById('l-end-word').innerText = L.chosenWord.word;
+  document.getElementById('l-end-clue').innerText = 'Category: ' + L.chosenWord.clue;
+  document.getElementById('l-end-starter').innerText = starter;
+  show('s-local-end');
+}
+
+window.localStart = localStart;
+window.localReveal = localReveal;
+window.localHide = localHide;
+window.localNext = localNext;
+window.localRevealImposter = localRevealImposter;
+
+/* ═══════════════════════════════════════════════════════
+   ONLINE MODE — Peer-to-Peer via BroadcastChannel
+   (works within the same browser for demo; for real
+    cross-device play we use Firebase if available,
+    otherwise fall back to a shareable local-storage
+    hack with polling + manual code entry)
+═══════════════════════════════════════════════════════ */
+
+/*
+  ARCHITECTURE:
+  - Host creates a room code (4-digit number)
+  - Firebase Realtime DB stores room state under /rooms/{code}
+  - Each player joins with their name → added to /rooms/{code}/players
+  - Host clicks Start → assigns word + imposter, writes to DB
+  - All players' phones see game state update via onValue listener
+  - If Firebase unavailable, we show a "no online" message
+*/
+
+let O = {
+  roomCode: null,
+  myName: null,
+  myId: null,
+  isHost: false,
+  fbUnsubscribe: null
+};
+
+function genRoomCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+async function onlineHostCreate() {
+  const name = document.getElementById('o-host-name').value.trim();
+  if (!name) { alert('Enter your name'); return; }
+
+  const code = genRoomCode();
+  O.roomCode = code;
+  O.myName = name;
+  O.myId = 'host_' + Date.now();
+  O.isHost = true;
+
+  const fb = window._fb;
+  if (!fb || !fb.isFirebaseOk) {
+    onlineFallbackHost(code, name);
+    return;
+  }
+
+  // Write room to Firebase
+  try {
+    const roomRef = fb.ref(fb.db, 'rooms/' + code);
+    await fb.set(roomRef, {
+      host: name,
+      status: 'lobby',
+      players: { [O.myId]: { name, id: O.myId, isHost: true } },
+      word: null,
+      clue: null,
+      imposterName: null,
+      starter: null
+    });
+    onlineLobbyListen(code);
+  } catch(e) {
+    console.error(e);
+    onlineFallbackHost(code, name);
+  }
+}
+
+async function onlineJoin() {
+  const code = document.getElementById('o-join-code').value.trim();
+  const name = document.getElementById('o-join-name').value.trim();
+  if (!code || code.length !== 4) { alert('Enter a 4-digit room code'); return; }
+  if (!name) { alert('Enter your name'); return; }
+
+  O.roomCode = code;
+  O.myName = name;
+  O.myId = 'p_' + Date.now();
+  O.isHost = false;
+
+  const fb = window._fb;
+  if (!fb || !fb.isFirebaseOk) {
+    onlineFallbackJoin(code, name);
+    return;
+  }
+
+  try {
+    const roomRef = fb.ref(fb.db, 'rooms/' + code);
+    const snap = await fb.get(roomRef);
+    if (!snap.exists()) { alert('Room not found. Check the code.'); return; }
+
+    // Add player
+    await fb.update(fb.ref(fb.db, 'rooms/' + code + '/players/' + O.myId), {
+      name, id: O.myId, isHost: false
+    });
+
+    // Show waiting screen
+    document.getElementById('o-waiting-avatar').innerText = initials(name);
+    document.getElementById('o-waiting-name').innerText = name;
+    document.getElementById('o-waiting-room').innerText = code;
+    show('s-online-waiting');
+
+    // Listen for game start
+    onlinePlayerListen(code);
+  } catch(e) {
+    console.error(e);
+    onlineFallbackJoin(code, name);
+  }
+}
+
+function onlineLobbyListen(code) {
+  document.getElementById('o-room-display').innerText = code;
+  show('s-online-lobby');
+
+  const fb = window._fb;
+  const roomRef = fb.ref(fb.db, 'rooms/' + code);
+
+  O.fbUnsubscribe = fb.onValue(roomRef, snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+    const players = data.players ? Object.values(data.players) : [];
+
+    // Update lobby list
+    document.getElementById('o-player-count').innerText = players.length + ' joined';
+    const list = document.getElementById('o-player-list');
+    list.innerHTML = players.map(p =>
+      `<li><div class="pip"></div>${p.name}${p.isHost?' <span style="color:var(--muted);font-size:.75rem">(host)</span>':''}</li>`
+    ).join('');
+
+    const min = parseInt(document.getElementById('o-min-players').value) || 3;
+    document.getElementById('o-start-btn').disabled = players.length < min;
+
+    // If game started, go to role screen (host)
+    if (data.status === 'playing' && data.word) {
+      onlineShowRole(data, O.myName, true);
+    }
+    if (data.status === 'ended') {
+      onlineShowEnd(data);
+    }
+  });
+}
+
+function onlinePlayerListen(code) {
+  const fb = window._fb;
+  const roomRef = fb.ref(fb.db, 'rooms/' + code);
+
+  O.fbUnsubscribe = fb.onValue(roomRef, snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+
+    if (data.status === 'playing' && data.word) {
+      onlineShowRole(data, O.myName, false);
+    }
+    if (data.status === 'ended') {
+      onlineShowEnd(data);
+    }
+  });
+}
+
+async function onlineHostStart() {
+  const fb = window._fb;
+  const code = O.roomCode;
+
+  const snap = await fb.get(fb.ref(fb.db, 'rooms/' + code + '/players'));
+  const players = snap.exists() ? Object.values(snap.val()) : [];
+  if (players.length < 3) { alert('Need at least 3 players'); return; }
+
+  const chosen = rand(words);
+  const imposter = rand(players);
+  const starter = rand(players);
+
+  await fb.update(fb.ref(fb.db, 'rooms/' + code), {
+    status: 'playing',
+    word: chosen.word,
+    clue: chosen.clue,
+    imposterName: imposter.name,
+    starter: starter.name
+  });
+}
+
+function onlineShowRole(data, myName, isHost) {
+  const isImposter = myName === data.imposterName;
+  document.getElementById('o-role-avatar').innerText = initials(myName);
+  document.getElementById('o-role-name').innerText = myName;
+  document.getElementById('o-starter-name').innerText = data.starter || '—';
+
+  const back = document.getElementById('o-card-back');
+  if (isImposter) {
+    document.getElementById('o-role-word').innerText = 'IMPOSTER 😈';
+    document.getElementById('o-role-sub').innerText  = 'Clue: ' + data.clue;
+    back.classList.remove('crewmate');
+  } else {
+    document.getElementById('o-role-word').innerText = data.word;
+    document.getElementById('o-role-sub').innerText  = 'You are a crewmate 🟢';
+    back.classList.add('crewmate');
+  }
+
+  // Only host sees reveal button
+  document.getElementById('o-reveal-btn').style.display = isHost ? 'block' : 'none';
+  document.querySelector('#o-reveal-btn + p').style.display = isHost ? 'block' : 'none';
+
+  document.getElementById('o-card').classList.remove('flipped');
+  show('s-online-role');
+}
+
+async function onlineRevealImposter() {
+  const fb = window._fb;
+  if (!fb || !fb.isFirebaseOk) {
+    // fallback
+    onlineFallbackReveal();
+    return;
+  }
+  const code = O.roomCode;
+  const newStarter = await getRandomPlayerFromRoom(code);
+  await fb.update(fb.ref(fb.db, 'rooms/' + code), {
+    status: 'ended',
+    endStarter: newStarter
+  });
+}
+
+async function getRandomPlayerFromRoom(code) {
+  const fb = window._fb;
+  const snap = await fb.get(fb.ref(fb.db, 'rooms/' + code + '/players'));
+  const players = snap.exists() ? Object.values(snap.val()) : [];
+  return players.length ? rand(players).name : '—';
+}
+
+function onlineShowEnd(data) {
+  document.getElementById('o-end-imposter').innerText = '😈 ' + data.imposterName + ' was the Imposter';
+  document.getElementById('o-end-word').innerText = data.word;
+  document.getElementById('o-end-clue').innerText = 'Category: ' + data.clue;
+  document.getElementById('o-end-starter').innerText = data.endStarter || '—';
+  show('s-online-end');
+}
+
+function onlineReveal() {
+  document.getElementById('o-card').classList.add('flipped');
+}
+function onlineHide() {
+  document.getElementById('o-card').classList.remove('flipped');
+}
+
+window.onlineHostCreate = onlineHostCreate;
+window.onlineJoin = onlineJoin;
+window.onlineHostStart = onlineHostStart;
+window.onlineRevealImposter = onlineRevealImposter;
+window.onlineReveal = onlineReveal;
+window.onlineHide = onlineHide;
+
+/* ═══════════════════════════════════════════════════════
+   FALLBACK — Firebase not available
+   Uses localStorage + polling so it still "works"
+   if everyone is on the same device/network session
+═══════════════════════════════════════════════════════ */
+function onlineFallbackHost(code, name) {
+  // Store room in localStorage
+  const room = {
+    code, host: name, status: 'lobby',
+    players: [{ name, id: O.myId, isHost: true }],
+    word: null, clue: null, imposterName: null, starter: null, endStarter: null
+  };
+  localStorage.setItem('imposter_room_' + code, JSON.stringify(room));
+
+  document.getElementById('o-room-display').innerText = code;
+  show('s-online-lobby');
+
+  // Poll for updates
+  O._pollInterval = setInterval(() => {
+    const raw = localStorage.getItem('imposter_room_' + code);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const players = data.players || [];
+
+    document.getElementById('o-player-count').innerText = players.length + ' joined';
+    const list = document.getElementById('o-player-list');
+    list.innerHTML = players.map(p =>
+      `<li><div class="pip"></div>${p.name}${p.isHost?' <span style="color:var(--muted);font-size:.75rem">(host)</span>':''}</li>`
+    ).join('');
+
+    const min = parseInt(document.getElementById('o-min-players').value) || 3;
+    document.getElementById('o-start-btn').disabled = players.length < min;
+
+    if (data.status === 'playing' && data.word) {
+      clearInterval(O._pollInterval);
+      onlineShowRole(data, O.myName, true);
+    }
+    if (data.status === 'ended') {
+      clearInterval(O._pollInterval);
+      onlineShowEnd(data);
+    }
+  }, 1000);
+
+  // Override start button
+  document.getElementById('o-start-btn').onclick = () => {
+    const raw = localStorage.getItem('imposter_room_' + code);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if ((data.players||[]).length < 3) { alert('Need at least 3 players'); return; }
+    const chosen = rand(words);
+    const imposter = rand(data.players);
+    const starter = rand(data.players);
+    data.status = 'playing';
+    data.word = chosen.word;
+    data.clue = chosen.clue;
+    data.imposterName = imposter.name;
+    data.starter = starter.name;
+    localStorage.setItem('imposter_room_' + code, JSON.stringify(data));
+  };
+}
+
+function onlineFallbackJoin(code, name) {
+  const raw = localStorage.getItem('imposter_room_' + code);
+  if (!raw) { alert('Room not found — make sure you\'re on the same device or Firebase is set up'); return; }
+  const data = JSON.parse(raw);
+  data.players = data.players || [];
+  data.players.push({ name, id: O.myId, isHost: false });
+  localStorage.setItem('imposter_room_' + code, JSON.stringify(data));
+
+  document.getElementById('o-waiting-avatar').innerText = initials(name);
+  document.getElementById('o-waiting-name').innerText = name;
+  document.getElementById('o-waiting-room').innerText = code;
+  show('s-online-waiting');
+
+  O._pollInterval = setInterval(() => {
+    const raw2 = localStorage.getItem('imposter_room_' + code);
+    if (!raw2) return;
+    const d = JSON.parse(raw2);
+    if (d.status === 'playing' && d.word) {
+      clearInterval(O._pollInterval);
+      onlineShowRole(d, name, false);
+    }
+    if (d.status === 'ended') {
+      clearInterval(O._pollInterval);
+      onlineShowEnd(d);
+    }
+  }, 1000);
+}
+
+function onlineFallbackReveal() {
+  const code = O.roomCode;
+  const raw = localStorage.getItem('imposter_room_' + code);
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  const starter = rand(data.players || [{ name: '—' }]).name;
+  data.status = 'ended';
+  data.endStarter = starter;
+  localStorage.setItem('imposter_room_' + code, JSON.stringify(data));
+  onlineShowEnd(data);
+}
+</script>
+</body>
+</html>
