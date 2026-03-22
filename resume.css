@@ -4,69 +4,58 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color:rgb(201, 214, 211);
+    background-color: rgb(201, 214, 211);
     color: #333;
-
-    /* Center content */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
 }
-
-.navbar{
+.navbar {
     margin: 0px;
     position: sticky;
     position: -webkit-sticky;
 }
-
-.navbar ul{
+.navbar ul {
     list-style-type: none;
     background-color: mintcream;
     overflow: hidden;
-    margin-right: 20px; /* Space between links */
-    text-decoration: none; /* Remove underline */
-    color: rgb(116, 125, 118); /* White text color */
-    padding: 10px 15px; /* Padding around links */
-    border-radius: 5px; /* Rounded corners for links */
-    transition: background-color 0.3s; /* Smooth transition for hover effect */
+    margin-right: 20px;
+    text-decoration: none;
+    color: rgb(116, 125, 118);
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
-
-.navbar a{
+.navbar a {
     color: black;
     text-decoration: none;
     padding: 15px;
     display: block;
     text-align: center;
 }
-
-.navbar a:hover{
+.navbar a:hover {
     background-color: rgb(197, 224, 204);
 }
-
-.navbar li{
+.navbar li {
     float: left;
 }
-
-h3{
+h3 {
     padding-left: 25%;
     padding-right: 25%;
     text-align: center;
 }
-
 @media (max-width: 768px) {
     button {
         width: 100%;
     }
-
     input[type="text"],
     input[type="number"],
     select {
         width: 100%;
     }
 }
-
 footer {
     background-color: #222;
     color: #fff;
@@ -76,14 +65,13 @@ footer {
     bottom: 0;
     width: 100%;
 }
-
 .container {
     max-width: 400px;
     margin: 100px auto;
     background: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 input, button, textarea {
     width: 90%;
@@ -99,7 +87,6 @@ button {
     border: none;
     cursor: pointer;
 }
-
-button:hover{
+button:hover {
     color: #145639;
 }
